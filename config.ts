@@ -1,0 +1,3 @@
+export const AUTH_TOKEN = '2718c5d9563729cd9f48cc873316bf4d840bf231834e6e3b93ff8955a39baeff';
+export const COLLECTION_ID = '67d2cb6081eda55205fb142a';
+export const CATEGORY_COLLECTION_ID = '67d7b8b3bedede1779633878'; 
