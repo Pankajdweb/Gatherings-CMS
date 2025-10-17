@@ -83,11 +83,13 @@ git push origin main
 
 3. **Environment Variables** (⚠️ IMPORTANT):
    - In Netlify dashboard, go to: Site settings → Environment variables
-   - Add the following variables:
-     - `AUTH_TOKEN`: Your Webflow API token
-     - `COLLECTION_ID`: Your Events collection ID
-     - `CATEGORY_COLLECTION_ID`: Your Category collection ID
-     - `COMMUNITY_COLLECTION_ID`: Your Community collection ID
+   - Add the following variables with `NEXT_PUBLIC_` prefix:
+     - `NEXT_PUBLIC_AUTH_TOKEN`: Your Webflow API token
+     - `NEXT_PUBLIC_COLLECTION_ID`: Your Events collection ID (686b88dfd246d066e6c034f8)
+     - `NEXT_PUBLIC_CATEGORY_COLLECTION_ID`: Your Category collection ID (686b89fba5b90558f5ce471f)
+     - `NEXT_PUBLIC_COMMUNITY_COLLECTION_ID`: Your Community collection ID (68e70edb8c0ca22e35eccd27)
+   
+   ⚠️ **Without these environment variables, the build will use the fallback values from config.ts**
 
 4. **Deploy**:
    - Click "Deploy site"
