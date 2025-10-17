@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Webflow Development",
-  description: "Webflow collection management with web scraping capabilities",
+  title: "Gatherings CMS - Event Management",
+  description: "Manage Webflow CMS collections for Gatherings events platform",
 };
 
 export default function RootLayout({

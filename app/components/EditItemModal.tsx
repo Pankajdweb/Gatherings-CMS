@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import styles from '../page.module.css';
-import RichTextEditor from './RichTextEditor';
 import MultiSelectBadge from './MultiSelectBadge';
 
 interface EditItemModalProps {

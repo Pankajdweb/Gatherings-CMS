@@ -5,8 +5,6 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     
-    console.log('Received request body:', JSON.stringify(body, null, 2));
-    
     // Validate required fields
     if (!body.fieldData) {
       return NextResponse.json(
@@ -22,8 +20,6 @@ export async function POST(request: Request) {
       isDraft: true
     };
 
-    console.log('Sending to Webflow API:', JSON.stringify(webflowBody, null, 2));
-
     // Use the /items/live endpoint to create live items directly
     const response = await fetch(`https://api.webflow.com/v2/collections/${COLLECTION_ID}/items/live`, {
       method: 'POST',
@@ -35,14 +31,8 @@ export async function POST(request: Request) {
       body: JSON.stringify(webflowBody)
     });
 
-    console.log('Webflow API response status:', response.status);
-    console.log('Webflow API response headers:', Object.fromEntries(response.headers.entries()));
-
     if (!response.ok) {
       const errorData = await response.text();
-      console.error('Webflow API error response:', errorData);
-      console.error('Webflow API error status:', response.status);
-      console.error('Webflow API error status text:', response.statusText);
       
       return NextResponse.json(
         { 
@@ -54,7 +44,6 @@ export async function POST(request: Request) {
     }
 
     const newItem = await response.json();
-    console.log('Successfully created live item:', newItem);
     return NextResponse.json(newItem);
   } catch (error) {
     console.error('Error creating item:', error);

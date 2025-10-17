@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import styles from "../page.module.css";
 import Link from "next/link";
-import RichTextEditor from "../components/RichTextEditor";
 import MultiSelectBadge from "../components/MultiSelectBadge";
 
 export default function AddItemPage() {

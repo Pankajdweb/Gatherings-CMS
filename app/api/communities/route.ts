@@ -15,7 +15,7 @@ export async function GET() {
     }
 
     const data = await response.json();
-    return NextResponse.json(data);
+    return NextResponse.json({ items: data.items || [] });
   } catch (error) {
     console.error('Error fetching communities:', error);
     return NextResponse.json(
@@ -24,4 +24,3 @@ export async function GET() {
     );
   }
 }
-
