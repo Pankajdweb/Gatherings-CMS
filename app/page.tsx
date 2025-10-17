@@ -125,12 +125,12 @@ export default function Home() {
       <main className={styles.main}>
         <div className={styles.navigation}>
           <Link href="/scraper" className={styles.navButton}>
-            ➕ Add New Item
+            ➕ Add New Event
           </Link>
         </div>
 
         <div className={styles.apiData}>
-          <h4>{data.collection?.displayName || "Grants Collection"}</h4>
+          <h4>{data.collection?.displayName || "Events Collection"}</h4>
           <div className={styles.items}>
             {data.items?.filter((item: any) => item.isArchived === true).map((item: any) => (
               <div
@@ -143,14 +143,59 @@ export default function Home() {
                   {item.fieldData?.name ||
                     item.name ||
                     item.displayName ||
-                    "Untitled"}
+                    "Untitled Event"}
                 </h6>
-                {item.fieldData?.["faq-answer"] && (
-                  <p>FAQ Answer: {item.fieldData["faq-answer"]}</p>
+
+                {/* Description */}
+                {item.fieldData?.description && (
+                  <p><strong>Description:</strong> {item.fieldData.description}</p>
                 )}
-                {item.fieldData?.['client-stories-summary'] && (
-                  <p>Summary: {item.fieldData['client-stories-summary']}</p>
+
+                {/* Club Name */}
+                {item.fieldData?.['club-name'] && (
+                  <p><strong>Club:</strong> {item.fieldData['club-name']}</p>
                 )}
+
+                {/* Organiser */}
+                {item.fieldData?.['event-organiser-name'] && (
+                  <p><strong>Organiser:</strong> {item.fieldData['event-organiser-name']}</p>
+                )}
+
+                {/* Date and Time */}
+                {item.fieldData?.['date-and-time'] && (
+                  <p><strong>📅 Date:</strong> {new Date(item.fieldData['date-and-time']).toLocaleString()}</p>
+                )}
+
+                {/* Address */}
+                {item.fieldData?.address && (
+                  <p><strong>📍 Address:</strong> {item.fieldData.address}</p>
+                )}
+
+                {/* Badges */}
+                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.5rem' }}>
+                  {item.fieldData?.thumbnail && (
+                    <span className={styles.statusBadge} style={{ background: '#e0e7ff', color: '#3730a3' }}>
+                      🖼️ Has Thumbnail
+                    </span>
+                  )}
+                  {item.fieldData?.['featured-image'] && (
+                    <span className={styles.statusBadge} style={{ background: '#fef3c7', color: '#92400e' }}>
+                      ⭐ Featured
+                    </span>
+                  )}
+                </div>
+
+                {/* Ticket Link */}
+                {item.fieldData?.['ticket-link'] && (
+                  <p><strong>🎟️ Tickets:</strong> <a href={item.fieldData['ticket-link']} target="_blank" rel="noopener noreferrer" style={{ color: '#3b82f6' }}>Get Tickets</a></p>
+                )}
+
+                {/* Order */}
+                {typeof item.fieldData?.order !== 'undefined' && (
+                  <p><strong>Order:</strong> {item.fieldData.order}</p>
+                )}
+
+                {/* Archive Status */}
                 {typeof item.isArchived !== 'undefined' && (
                   <p className={styles.readyStatus}>
                     Archived:
@@ -165,6 +210,7 @@ export default function Home() {
                     </span>
                   </p>
                 )}
+
                 {typeof item.isDraft !== 'undefined' && (
                   <p className={styles.readyStatus}>
                     Draft:
@@ -179,12 +225,13 @@ export default function Home() {
                     </span>
                   </p>
                 )}
+
+                {/* Timestamps */}
                 {item.lastPublished && (
                   <div className={styles.dateBadgeContainer}>
                     <span className={`${styles.dateBadge} ${styles.published}`}>
                       📅 Published
                     </span>
-               
                     <span className={styles.relativeTime}>
                       {getRelativeTime(item.lastPublished)}
                     </span>
@@ -195,7 +242,6 @@ export default function Home() {
                     <span className={`${styles.dateBadge} ${styles.updated}`}>
                       🔄 Updated
                     </span>
-                 
                     <span className={styles.relativeTime}>
                       {getRelativeTime(item.lastUpdated)}
                     </span>
@@ -206,14 +252,11 @@ export default function Home() {
                     <span className={`${styles.dateBadge} ${styles.created}`}>
                       ✨ Created
                     </span>
-           
                     <span className={styles.relativeTime}>
                       {getRelativeTime(item.createdOn)}
                     </span>
                   </div>
                 )}
-           
-      
               </div>
             ))}
           </div>

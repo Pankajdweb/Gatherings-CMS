@@ -4,46 +4,67 @@ import { useState, useEffect } from "react";
 import styles from "../page.module.css";
 import Link from "next/link";
 import RichTextEditor from "../components/RichTextEditor";
+import MultiSelectBadge from "../components/MultiSelectBadge";
 
 export default function AddItemPage() {
   const [isSendingToCMS, setIsSendingToCMS] = useState(false);
   const [cmsMessage, setCmsMessage] = useState("");
   const [formData, setFormData] = useState({
-    title: "",
-    shortDescription: "",
-    imageUrl: "",
-    openingDate: "",
-    closingDate: "",
-    duration: "",
-    mainBody: "",
-    fundingBody: "",
-    awardValue: "",
-    url: "",
+    name: "",
+    slug: "",
+    description: "",
+    clubName: "",
+    eventOrganiserName: "",
+    dateAndTime: "",
+    address: "",
+    thumbnail: "",
+    ticketLink: "",
+    featuredImage: false,
     order: 0,
+    locationReference: "",
+    eventCommunityReferences: [] as string[],
+    categoryReferences: [] as string[],
   });
   const [collectionFields, setCollectionFields] = useState<any>(null);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [communities, setCommunities] = useState<any[]>([]);
 
-  // Fetch collection structure on component mount
+  // Fetch collection structure, categories, and communities on component mount
   useEffect(() => {
-    const fetchCollectionStructure = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch(`/api/collection`);
-        if (response.ok) {
-          const data = await response.json();
+        // Fetch collection structure
+        const collectionResponse = await fetch(`/api/collection`);
+        if (collectionResponse.ok) {
+          const data = await collectionResponse.json();
           setCollectionFields(data.collection?.fields || []);
         }
+
+        // Fetch categories
+        const categoriesResponse = await fetch(`/api/categories`);
+        if (categoriesResponse.ok) {
+          const categoriesData = await categoriesResponse.json();
+          setCategories(categoriesData.items || []);
+        }
+
+        // Fetch communities
+        const communitiesResponse = await fetch(`/api/communities`);
+        if (communitiesResponse.ok) {
+          const communitiesData = await communitiesResponse.json();
+          setCommunities(communitiesData.items || []);
+        }
       } catch (error) {
-        console.error("Error fetching collection structure:", error);
+        console.error("Error fetching data:", error);
       }
     };
 
-    fetchCollectionStructure();
+    fetchData();
   }, []);
 
 
   const handleSendToCMS = async () => {
-    if (!formData.title) {
-      setCmsMessage("❌ Please enter at least a title before submitting");
+    if (!formData.name || !formData.slug) {
+      setCmsMessage("❌ Please enter both Name and Slug (required fields)");
       return;
     }
 
@@ -51,30 +72,38 @@ export default function AddItemPage() {
     setCmsMessage("");
 
     try {
+      // Prepare the payload
+      const fieldData: any = {
+        name: formData.name,
+        slug: formData.slug,
+        description: formData.description || "",
+        "club-name": formData.clubName || "",
+        "event-organiser-name": formData.eventOrganiserName || "",
+        "date-and-time": formData.dateAndTime || "",
+        address: formData.address || "",
+        thumbnail: formData.thumbnail || "",
+        "ticket-link": formData.ticketLink || "",
+        "featured-image": formData.featuredImage,
+        order: formData.order || 0,
+      };
+
+      // Add references if provided
+      if (formData.locationReference) {
+        fieldData.location = formData.locationReference;
+      }
+      if (formData.eventCommunityReferences.length > 0) {
+        fieldData["event-community"] = formData.eventCommunityReferences;
+      }
+      if (formData.categoryReferences.length > 0) {
+        fieldData["places-2"] = formData.categoryReferences;
+      }
+
       const response = await fetch(`/api/collection/items`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          fieldData: {
-            name: formData.title,
-            "client-stories-summary": formData.shortDescription || "",
-            "opens": formData.openingDate,
-            "closes": formData.closingDate,
-            "deadline-text": formData.duration,
-            "funding-body": formData.fundingBody,
-            "award-value": formData.awardValue,
-            "client-stories-thumbnail-image": formData.imageUrl,
-            "client-stories-body": formData.mainBody,
-            "meta-title": formData.title,
-            "meta-description": (formData.shortDescription || "")
-              .replace(/\n/g, " ")
-              .trim(),
-            "url-5": formData.url,
-            order: formData.order,
-          },
-        }),
+        body: JSON.stringify({ fieldData }),
       });
 
       if (!response.ok) {
@@ -117,17 +146,20 @@ export default function AddItemPage() {
 
   const handleClearData = () => {
     setFormData({
-      title: "",
-      shortDescription: "",
-      imageUrl: "",
-      openingDate: "",
-      closingDate: "",
-      duration: "",
-      mainBody: "",
-      fundingBody: "",
-      awardValue: "",
-      url: "",
+      name: "",
+      slug: "",
+      description: "",
+      clubName: "",
+      eventOrganiserName: "",
+      dateAndTime: "",
+      address: "",
+      thumbnail: "",
+      ticketLink: "",
+      featuredImage: false,
       order: 0,
+      locationReference: "",
+      eventCommunityReferences: [] as string[],
+      categoryReferences: [] as string[],
     });
     setCmsMessage("");
   };
@@ -148,7 +180,7 @@ export default function AddItemPage() {
 
           <div className={styles.scrapedDataSection}>
             <div className={styles.sectionHeader}>
-              <h2>Add New Item</h2>
+              <h2>Add New Event</h2>
               <button
                 onClick={handleClearData}
                 className={styles.clearButton}
@@ -158,165 +190,222 @@ export default function AddItemPage() {
             </div>
 
             <p className={styles.editInstructions}>
-              Fill in the details below to create a new item in the CMS:
+              Fill in the event details below to create a new item in the CMS:
             </p>
 
             <div className={styles.dataGrid}>
               <div className={styles.dataField}>
-                <label>Title: <span style={{color: 'red'}}>*</span></label>
+                <label>Event Name: <span style={{color: 'red'}}>*</span></label>
                 <input
                   type="text"
-                  value={formData.title}
+                  value={formData.name}
                   onChange={(e) =>
                     setFormData((prev) => ({
                       ...prev,
-                      title: e.target.value,
+                      name: e.target.value,
                     }))
                   }
                   className={styles.dataInput}
-                  placeholder="Enter title..."
+                  placeholder="Enter event name..."
                   required
                 />
               </div>
 
               <div className={styles.dataField}>
-                <label>Short Description:</label>
-                <textarea
-                  value={formData.shortDescription}
+                <label>Slug (URL): <span style={{color: 'red'}}>*</span></label>
+                <input
+                  type="text"
+                  value={formData.slug}
                   onChange={(e) =>
                     setFormData((prev) => ({
                       ...prev,
-                      shortDescription: e.target.value,
+                      slug: e.target.value,
+                    }))
+                  }
+                  className={styles.dataInput}
+                  placeholder="e.g., my-event-2025"
+                  required
+                />
+              </div>
+
+              <div className={styles.dataField}>
+                <label>Description:</label>
+                <textarea
+                  value={formData.description}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      description: e.target.value,
                     }))
                   }
                   className={styles.dataTextarea}
-                  placeholder="Enter short description..."
-                  rows={3}
+                  placeholder="Enter event description..."
+                  rows={4}
                 />
               </div>
 
               <div className={styles.dataField}>
-                <label>Image URL:</label>
+                <label>Club Name:</label>
+                <input
+                  type="text"
+                  value={formData.clubName}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      clubName: e.target.value,
+                    }))
+                  }
+                  className={styles.dataInput}
+                  placeholder="Enter club name..."
+                />
+              </div>
+
+              <div className={styles.dataField}>
+                <label>Event Organiser Name:</label>
+                <input
+                  type="text"
+                  value={formData.eventOrganiserName}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      eventOrganiserName: e.target.value,
+                    }))
+                  }
+                  className={styles.dataInput}
+                  placeholder="Enter organiser name..."
+                />
+              </div>
+
+              <div className={styles.dataField}>
+                <label>Date and Time:</label>
+                <input
+                  type="datetime-local"
+                  value={formData.dateAndTime}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      dateAndTime: e.target.value,
+                    }))
+                  }
+                  className={styles.dataInput}
+                />
+              </div>
+
+              <div className={styles.dataField}>
+                <label>Address:</label>
+                <input
+                  type="text"
+                  value={formData.address}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      address: e.target.value,
+                    }))
+                  }
+                  className={styles.dataInput}
+                  placeholder="Enter event address..."
+                />
+              </div>
+
+              <div className={styles.dataField}>
+                <label>Thumbnail Image URL:</label>
                 <input
                   type="url"
-                  value={formData.imageUrl}
+                  value={formData.thumbnail}
                   onChange={(e) =>
                     setFormData((prev) => ({
                       ...prev,
-                      imageUrl: e.target.value,
+                      thumbnail: e.target.value,
                     }))
                   }
                   className={styles.dataInput}
-                  placeholder="Enter image URL..."
+                  placeholder="Enter thumbnail image URL..."
                 />
               </div>
 
               <div className={styles.dataField}>
-                <label>Opening Date (YYYY-MM-DD):</label>
-                <input
-                  type="date"
-                  value={formData.openingDate}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      openingDate: e.target.value,
-                    }))
-                  }
-                  className={styles.dataInput}
-                />
-              </div>
-
-              <div className={styles.dataField}>
-                <label>Closing Date (YYYY-MM-DD):</label>
-                <input
-                  type="date"
-                  value={formData.closingDate}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      closingDate: e.target.value,
-                    }))
-                  }
-                  className={styles.dataInput}
-                />
-              </div>
-
-              <div className={styles.dataField}>
-                <label>Duration:</label>
-                <input
-                  type="text"
-                  value={formData.duration}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      duration: e.target.value,
-                    }))
-                  }
-                  className={styles.dataInput}
-                  placeholder="e.g., 6 months"
-                />
-              </div>
-
-              <div className={styles.dataField}>
-                <label>Funding Body:</label>
-                <input
-                  type="text"
-                  value={formData.fundingBody}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      fundingBody: e.target.value,
-                    }))
-                  }
-                  className={styles.dataInput}
-                  placeholder="Enter funding body..."
-                />
-              </div>
-
-              <div className={styles.dataField}>
-                <label>Award Value:</label>
-                <input
-                  type="text"
-                  value={formData.awardValue}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      awardValue: e.target.value,
-                    }))
-                  }
-                  className={styles.dataInput}
-                  placeholder="Enter award value..."
-                />
-              </div>
-
-              <div className={styles.dataField}>
-                <label>Main Body Content:</label>
-                <RichTextEditor
-                  value={formData.mainBody}
-                  onChange={(value) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      mainBody: value,
-                    }))
-                  }
-                  placeholder="Enter main body content..."
-                />
-              </div>
-
-              <div className={styles.dataField}>
-                <label>URL:</label>
+                <label>Ticket Link:</label>
                 <input
                   type="url"
-                  value={formData.url}
+                  value={formData.ticketLink}
                   onChange={(e) =>
                     setFormData((prev) => ({
                       ...prev,
-                      url: e.target.value,
+                      ticketLink: e.target.value,
                     }))
                   }
                   className={styles.dataInput}
-                  placeholder="Enter URL..."
+                  placeholder="Enter ticket purchase link..."
                 />
+              </div>
+
+              <div className={styles.dataField}>
+                <label>Location Reference ID (optional):</label>
+                <input
+                  type="text"
+                  value={formData.locationReference}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      locationReference: e.target.value,
+                    }))
+                  }
+                  className={styles.dataInput}
+                  placeholder="Enter location reference ID..."
+                />
+              </div>
+
+              <div className={styles.dataField}>
+                <MultiSelectBadge
+                  label="Event Communities"
+                  options={communities.map((c: any) => ({
+                    id: c.id,
+                    name: c.fieldData?.name || c.name || c.slug || c.id
+                  }))}
+                  selectedIds={formData.eventCommunityReferences}
+                  onChange={(selectedIds) => 
+                    setFormData((prev) => ({
+                      ...prev,
+                      eventCommunityReferences: selectedIds,
+                    }))
+                  }
+                  placeholder="Click to add communities..."
+                />
+              </div>
+
+              <div className={styles.dataField}>
+                <MultiSelectBadge
+                  label="Categories"
+                  options={categories.map((c: any) => ({
+                    id: c.id,
+                    name: c.fieldData?.name || c.name || c.slug || c.id
+                  }))}
+                  selectedIds={formData.categoryReferences}
+                  onChange={(selectedIds) => 
+                    setFormData((prev) => ({
+                      ...prev,
+                      categoryReferences: selectedIds,
+                    }))
+                  }
+                  placeholder="Click to add categories..."
+                />
+              </div>
+
+              <div className={styles.dataField}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                  <input
+                    type="checkbox"
+                    checked={formData.featuredImage}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        featuredImage: e.target.checked,
+                      }))
+                    }
+                    style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                  />
+                  <span>Featured Event</span>
+                </label>
               </div>
 
               <div className={styles.dataField}>
@@ -344,7 +433,7 @@ export default function AddItemPage() {
               className={styles.sendToCMSButton}
               disabled={isSendingToCMS}
             >
-              {isSendingToCMS ? "Creating Item..." : "Create Item in CMS"}
+              {isSendingToCMS ? "Creating Event..." : "Create Event in CMS"}
             </button>
             {cmsMessage && (
               <p className={`${styles.cmsMessage} ${getCmsMessageClass()}`}>

@@ -1,3 +1,4 @@
-export const AUTH_TOKEN = '2718c5d9563729cd9f48cc873316bf4d840bf231834e6e3b93ff8955a39baeff';
-export const COLLECTION_ID = '67d2cb6081eda55205fb142a';
-export const CATEGORY_COLLECTION_ID = '67d7b8b3bedede1779633878'; 
+export const AUTH_TOKEN = '0eb5c0fb1d6d00d04791c9ba9a42b6cfc75bcd5f9a90ff51448be36154e5bc33';
+export const COLLECTION_ID = '686b88dfd246d066e6c034f8';
+export const CATEGORY_COLLECTION_ID = '686b89fba5b90558f5ce471f'; 
+export const COMMUNITY_COLLECTION_ID = '68e70edb8c0ca22e35eccd27'; 
