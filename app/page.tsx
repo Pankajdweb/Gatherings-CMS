@@ -124,7 +124,7 @@ export default function Home() {
     <div className={styles.page}>
       <main className={styles.main}>
         <div className={styles.navigation}>
-          <Link href="/scraper" className={styles.navButton}>
+          <Link href="/addevents" className={styles.navButton}>
             ➕ Add New Event
           </Link>
         </div>

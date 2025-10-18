@@ -50,10 +50,11 @@ export default function EditItemModal({ item, isOpen, onClose, onSave }: EditIte
   const [isLoading, setIsLoading] = useState(false);
   const [categories, setCategories] = useState([]);
   const [communities, setCommunities] = useState([]);
+  const [locations, setLocations] = useState([]);
   const [updateMode, setUpdateMode] = useState<'staging' | 'live'>('staging');
 
   useEffect(() => {
-    // Fetch categories and communities
+    // Fetch categories, communities, and locations
     async function fetchData() {
       try {
         // Fetch categories
@@ -68,6 +69,13 @@ export default function EditItemModal({ item, isOpen, onClose, onSave }: EditIte
         if (communitiesResponse.ok) {
           const communitiesData = await communitiesResponse.json();
           setCommunities(communitiesData.items || []);
+        }
+
+        // Fetch locations
+        const locationsResponse = await fetch('/api/locations');
+        if (locationsResponse.ok) {
+          const locationsData = await locationsResponse.json();
+          setLocations(locationsData.items || []);
         }
       } catch (err) {
         console.error('Error fetching data:', err);
@@ -215,6 +223,24 @@ export default function EditItemModal({ item, isOpen, onClose, onSave }: EditIte
               onChange={(e) => handleInputChange('address', e.target.value)}
               className={styles.formInput}
             />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label htmlFor="location">Location:</label>
+            <select
+              id="location"
+              value={formData.location}
+              onChange={(e) => handleInputChange('location', e.target.value)}
+              className={styles.formInput}
+              style={{ cursor: 'pointer' }}
+            >
+              <option value="">Select a location...</option>
+              {locations.map((loc: any) => (
+                <option key={loc.id} value={loc.id}>
+                  {loc.fieldData?.name || loc.name || loc.slug || loc.id}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className={styles.formGroup}>

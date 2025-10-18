@@ -27,8 +27,9 @@ export default function AddItemPage() {
   const [collectionFields, setCollectionFields] = useState<any>(null);
   const [categories, setCategories] = useState<any[]>([]);
   const [communities, setCommunities] = useState<any[]>([]);
+  const [locations, setLocations] = useState<any[]>([]);
 
-  // Fetch collection structure, categories, and communities on component mount
+  // Fetch collection structure, categories, communities, and locations on component mount
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -51,6 +52,13 @@ export default function AddItemPage() {
         if (communitiesResponse.ok) {
           const communitiesData = await communitiesResponse.json();
           setCommunities(communitiesData.items || []);
+        }
+
+        // Fetch locations
+        const locationsResponse = await fetch(`/api/locations`);
+        if (locationsResponse.ok) {
+          const locationsData = await locationsResponse.json();
+          setLocations(locationsData.items || []);
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -339,9 +347,8 @@ export default function AddItemPage() {
               </div>
 
               <div className={styles.dataField}>
-                <label>Location Reference ID (optional):</label>
-                <input
-                  type="text"
+                <label>Location:</label>
+                <select
                   value={formData.locationReference}
                   onChange={(e) =>
                     setFormData((prev) => ({
@@ -350,8 +357,15 @@ export default function AddItemPage() {
                     }))
                   }
                   className={styles.dataInput}
-                  placeholder="Enter location reference ID..."
-                />
+                  style={{ cursor: 'pointer' }}
+                >
+                  <option value="">Select a location...</option>
+                  {locations.map((loc: any) => (
+                    <option key={loc.id} value={loc.id}>
+                      {loc.fieldData?.name || loc.name || loc.slug || loc.id}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className={styles.dataField}>
@@ -445,3 +459,4 @@ export default function AddItemPage() {
     </div>
   );
 }
+
