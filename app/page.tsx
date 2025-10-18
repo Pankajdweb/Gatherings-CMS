@@ -3,6 +3,7 @@
 import styles from "./page.module.css";
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { UserButton } from "@clerk/nextjs";
 import EditItemModal from "./components/EditItemModal";
 
 async function getCollectionItems() {
@@ -82,10 +83,22 @@ export default function Home() {
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentUserWebflowId, setCurrentUserWebflowId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        // First, get current user's Webflow ID
+        const userResponse = await fetch('/api/current-user-webflow');
+        let userWebflowId = null;
+        
+        if (userResponse.ok) {
+          const userData = await userResponse.json();
+          userWebflowId = userData.webflowUserId;
+          setCurrentUserWebflowId(userWebflowId);
+        }
+
+        // Then fetch all events
         const result = await getCollectionItems();
         setData(result);
       } catch (error) {
@@ -96,6 +109,19 @@ export default function Home() {
     };
 
     fetchData();
+  }, []);
+
+  // Sync user to Webflow on first visit
+  useEffect(() => {
+    const syncUser = async () => {
+      try {
+        await fetch('/api/sync-user', { method: 'POST' });
+      } catch (error) {
+        console.error('Error syncing user:', error);
+      }
+    };
+
+    syncUser();
   }, []);
 
   const handleItemClick = (item: any) => {
@@ -120,19 +146,37 @@ export default function Home() {
     return <div className={styles.page}>Error loading data</div>;
   }
 
+  // Filter events to show only current user's events
+  const userEvents = data?.items?.filter((item: any) => 
+    item.fieldData?.['organiser-name'] === currentUserWebflowId
+  ) || [];
+
   return (
     <div className={styles.page}>
       <main className={styles.main}>
-        <div className={styles.navigation}>
-          <Link href="/addevents" className={styles.navButton}>
-            ➕ Add New Event
-          </Link>
-        </div>
-
         <div className={styles.apiData}>
-          <h4>{data.collection?.displayName || "Events Collection"}</h4>
+          <div style={{ 
+            textAlign: 'center', 
+            marginBottom: '2rem',
+            paddingTop: '1rem'
+          }}>
+            <h4 style={{ 
+              fontSize: '2rem', 
+              fontWeight: '700',
+              margin: '0 0 0.5rem 0'
+            }}>
+              My Events
+            </h4>
+            <p style={{ 
+              color: '#9ca3af', 
+              fontSize: '1rem', 
+              margin: 0 
+            }}>
+              Showing all events you've created (Draft, Published, and Archived)
+            </p>
+          </div>
           <div className={styles.items}>
-            {data.items?.filter((item: any) => item.isArchived === true).map((item: any) => (
+            {userEvents.map((item: any) => (
               <div
                 key={item.id}
                 className={styles.item}
@@ -260,8 +304,12 @@ export default function Home() {
               </div>
             ))}
           </div>
-          {!data.items?.filter((item: any) => item.isArchived === true).length && (
-            <p className={styles.error}>No archived items found in this collection</p>
+          {userEvents.length === 0 && !isLoading && (
+            <p className={styles.error}>
+              {currentUserWebflowId 
+                ? "You haven't created any events yet. Click 'Add New Event' to get started!"
+                : "Loading your events..."}
+            </p>
           )}
         </div>
 

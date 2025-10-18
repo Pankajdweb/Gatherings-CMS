@@ -1,0 +1,130 @@
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: rgba(35, 38, 58, 0.95);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+}
+
+.navContainer {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+.logoLink {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  transition: transform 0.2s ease;
+}
+
+.logoLink:hover {
+  transform: scale(1.05);
+}
+
+.logo {
+  height: 45px;
+  width: auto;
+  object-fit: contain;
+  filter: brightness(1.1);
+}
+
+.navLinks {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  justify-content: center;
+}
+
+.navLink {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.95rem;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.navLink:hover {
+  color: var(--text-primary);
+  background: rgba(255, 107, 53, 0.1);
+}
+
+.navLink:hover .navIcon {
+  transform: scale(1.2);
+}
+
+.navIcon {
+  font-size: 1.1rem;
+  transition: transform 0.2s ease;
+  display: inline-block;
+}
+
+.userSection {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Active link styles */
+.navLink[aria-current="page"] {
+  color: var(--accent-orange);
+  background: rgba(255, 107, 53, 0.15);
+  font-weight: 600;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .navContainer {
+    padding: 0.75rem 1rem;
+    gap: 1rem;
+  }
+
+  .logo {
+    height: 35px;
+  }
+
+  .navLinks {
+    gap: 0.25rem;
+  }
+
+  .navLink {
+    padding: 0.6rem 1rem;
+    font-size: 0.875rem;
+  }
+
+  .navIcon {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .navLinks {
+    display: none;
+  }
+
+  .navContainer {
+    justify-content: space-between;
+  }
+}
+
+/* Dark theme compatibility */
+@media (prefers-color-scheme: dark) {
+  .navbar {
+    background: rgba(35, 38, 58, 0.98);
+  }
+}
+

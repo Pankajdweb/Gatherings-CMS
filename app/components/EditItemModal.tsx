@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import styles from '../page.module.css';
 import MultiSelectBadge from './MultiSelectBadge';
+import ImageUpload from './ImageUpload';
 
 interface EditItemModalProps {
   item: any;
@@ -30,6 +31,13 @@ export default function EditItemModal({ item, isOpen, onClose, onSave }: EditIte
     return '';
   };
 
+  // Log initial item data for debugging
+  console.log('=== EditItemModal Opened ===');
+  console.log('Item ID:', item?.id);
+  console.log('Initial thumbnail data:', item?.fieldData?.thumbnail);
+  console.log('Thumbnail type:', typeof item?.fieldData?.thumbnail);
+  console.log('Thumbnail structure:', JSON.stringify(item?.fieldData?.thumbnail, null, 2));
+  
   const [formData, setFormData] = useState({
     name: item?.fieldData?.name || item?.name || '',
     slug: item?.fieldData?.slug || '',
@@ -38,23 +46,26 @@ export default function EditItemModal({ item, isOpen, onClose, onSave }: EditIte
     'event-organiser-name': item?.fieldData?.['event-organiser-name'] || '',
     'date-and-time': formatDateForInput(item?.fieldData?.['date-and-time'] || ''),
     address: item?.fieldData?.address || '',
-    thumbnail: item?.fieldData?.thumbnail || '',
+    thumbnail: item?.fieldData?.thumbnail || '',  // Can be object {fileId, url, alt} or string
     'ticket-link': item?.fieldData?.['ticket-link'] || '',
     'featured-image': item?.fieldData?.['featured-image'] || false,
     order: item?.fieldData?.order || 0,
     isArchived: typeof item?.isArchived === 'boolean' ? item.isArchived : false,
     location: item?.fieldData?.location || '',
+    'organiser-name': item?.fieldData?.['organiser-name'] || '',
     'event-community': item?.fieldData?.['event-community'] || [],
     'places-2': item?.fieldData?.['places-2'] || [],
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [categories, setCategories] = useState([]);
-  const [communities, setCommunities] = useState([]);
-  const [locations, setLocations] = useState([]);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [communities, setCommunities] = useState<any[]>([]);
+  const [locations, setLocations] = useState<any[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
   const [updateMode, setUpdateMode] = useState<'staging' | 'live'>('staging');
+  const [pendingImageFile, setPendingImageFile] = useState<File | null>(null);
 
   useEffect(() => {
-    // Fetch categories, communities, and locations
+    // Fetch categories, communities, locations, and users
     async function fetchData() {
       try {
         // Fetch categories
@@ -77,6 +88,13 @@ export default function EditItemModal({ item, isOpen, onClose, onSave }: EditIte
           const locationsData = await locationsResponse.json();
           setLocations(locationsData.items || []);
         }
+
+        // Fetch users (for organiser dropdown)
+        const usersResponse = await fetch('/api/users');
+        if (usersResponse.ok) {
+          const usersData = await usersResponse.json();
+          setUsers(usersData.items || []);
+        }
       } catch (err) {
         console.error('Error fetching data:', err);
       }
@@ -86,7 +104,8 @@ export default function EditItemModal({ item, isOpen, onClose, onSave }: EditIte
 
   if (!isOpen) return null;
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: string, value: any) => {
+    console.log(`📝 Field "${field}" updated with:`, value);
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -106,6 +125,50 @@ export default function EditItemModal({ item, isOpen, onClose, onSave }: EditIte
     try {
       // Remove isArchived from fieldData
       const { isArchived, ...fieldDataWithoutIsArchived } = formData;
+      
+      // If there's a pending image file, upload it first
+      if (pendingImageFile) {
+        console.log('=== Uploading image before save ===');
+        console.log('Pending file:', pendingImageFile.name);
+        
+        try {
+          const imageFormData = new FormData();
+          imageFormData.append('file', pendingImageFile);
+          
+          const uploadResponse = await fetch('/api/upload-image', {
+            method: 'POST',
+            body: imageFormData,
+          });
+          
+          if (!uploadResponse.ok) {
+            const error = await uploadResponse.json();
+            throw new Error(error.details || error.error || 'Failed to upload image');
+          }
+          
+          const imageData = await uploadResponse.json();
+          console.log('✅ Image uploaded:', imageData);
+          
+          // Update the thumbnail in fieldData with the uploaded image data
+          fieldDataWithoutIsArchived.thumbnail = imageData;
+        } catch (uploadError) {
+          console.error('❌ Image upload failed:', uploadError);
+          alert(`Failed to upload image: ${uploadError instanceof Error ? uploadError.message : 'Unknown error'}`);
+          setIsLoading(false);
+          return; // Don't proceed with save if image upload fails
+        }
+      }
+      
+      // Clean up thumbnail field - remove if empty string, keep if object or omit entirely
+      if (fieldDataWithoutIsArchived.thumbnail === '') {
+        delete fieldDataWithoutIsArchived.thumbnail;
+        console.log('Thumbnail is empty string - removing from payload');
+      }
+      
+      console.log('=== Saving Item to CMS ===');
+      console.log('Thumbnail data being sent:', fieldDataWithoutIsArchived.thumbnail);
+      console.log('Thumbnail type:', typeof fieldDataWithoutIsArchived.thumbnail);
+      console.log('Full fieldData:', JSON.stringify(fieldDataWithoutIsArchived, null, 2));
+      
       const response = await fetch(`/api/collection/items/${item.id}`, {
         method: 'PATCH',
         headers: {
@@ -120,8 +183,19 @@ export default function EditItemModal({ item, isOpen, onClose, onSave }: EditIte
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('Failed to update item:', response.status, errorText);
-        throw new Error(`Failed to update item: ${response.status} ${errorText}`);
+        console.error('❌ Failed to update item');
+        console.error('Status:', response.status);
+        console.error('Response:', errorText);
+        
+        // Try to parse error for better display
+        try {
+          const errorJson = JSON.parse(errorText);
+          console.error('Parsed error:', errorJson);
+          alert(`Failed to update item: ${errorJson.details || errorJson.error || errorText}`);
+        } catch (e) {
+          alert(`Failed to update item: ${errorText}`);
+        }
+        throw new Error(`Failed to update item: ${response.status}`);
       }
 
       const updatedItem = await response.json();
@@ -244,15 +318,60 @@ export default function EditItemModal({ item, isOpen, onClose, onSave }: EditIte
           </div>
 
           <div className={styles.formGroup}>
-            <label htmlFor="thumbnail">Thumbnail Image URL:</label>
+            <label htmlFor="organiser-name">
+              Organiser Name: 
+              <span style={{color: '#9ca3af', fontSize: '0.9rem', fontWeight: 'normal', marginLeft: '0.5rem'}}>
+                (Cannot be changed)
+              </span>
+            </label>
             <input
-              type="url"
-              id="thumbnail"
-              value={formData.thumbnail}
-              onChange={(e) => handleInputChange('thumbnail', e.target.value)}
+              type="text"
+              id="organiser-name"
+              value={
+                (users.find((u) => u.id === formData['organiser-name']) as any)?.fieldData?.name || 
+                (users.find((u) => u.id === formData['organiser-name']) as any)?.name ||
+                'Not assigned'
+              }
+              disabled
               className={styles.formInput}
+              style={{ 
+                backgroundColor: 'rgba(255, 255, 255, 0.05)', 
+                cursor: 'not-allowed',
+                color: '#9ca3af',
+                fontWeight: '500',
+                border: '2px solid rgba(255, 255, 255, 0.08)',
+                opacity: 0.7
+              }}
+              title="Organiser is set when the event is created and cannot be changed"
             />
+            <p style={{ 
+              fontSize: '0.875rem', 
+              color: '#9ca3af', 
+              marginTop: '0.5rem',
+              marginBottom: 0,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              padding: '0.75rem',
+              background: 'rgba(255, 107, 53, 0.05)',
+              borderRadius: '8px',
+              border: '1px solid rgba(255, 107, 53, 0.15)'
+            }}>
+              <span style={{ fontSize: '1.1rem' }}>🔒</span>
+              <span>The organiser is automatically set when the event is created and cannot be modified</span>
+            </p>
           </div>
+
+          <ImageUpload
+            currentImageUrl={formData.thumbnail}
+            onImageUploaded={(imageData) => handleInputChange('thumbnail', imageData as any)}
+            onFileSelected={(file) => {
+              console.log('📁 File selected for thumbnail:', file?.name || 'none');
+              setPendingImageFile(file);
+            }}
+            uploadOnSelect={false}
+            label="Thumbnail Image"
+          />
 
           <div className={styles.formGroup}>
             <label htmlFor="ticket-link">Ticket Link:</label>

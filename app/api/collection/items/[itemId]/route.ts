@@ -15,6 +15,11 @@ export async function PATCH(
     const resolvedParams = await params;
     const body = await request.json();
     
+    console.log('=== Updating Item ===');
+    console.log('Item ID:', resolvedParams.itemId);
+    console.log('Update Mode:', body.updateMode || 'live (default)');
+    console.log('Thumbnail data:', body.fieldData?.thumbnail);
+    
     // Prepare the request body for Webflow API
     const webflowBody: any = {
       fieldData: body.fieldData,
@@ -22,7 +27,15 @@ export async function PATCH(
       isDraft: false
     };
 
-    const response = await fetch(`https://api.webflow.com/v2/collections/${COLLECTION_ID}/items/${resolvedParams.itemId}/live`, {
+    // Use staging or live endpoint based on updateMode
+    const updateMode = body.updateMode || 'live';
+    const endpoint = updateMode === 'staging' 
+      ? `https://api.webflow.com/v2/collections/${COLLECTION_ID}/items/${resolvedParams.itemId}`
+      : `https://api.webflow.com/v2/collections/${COLLECTION_ID}/items/${resolvedParams.itemId}/live`;
+    
+    console.log('Endpoint:', endpoint);
+
+    const response = await fetch(endpoint, {
       method: 'PATCH',
       headers: {
         'Authorization': `Bearer ${AUTH_TOKEN}`,
@@ -34,11 +47,31 @@ export async function PATCH(
 
     if (!response.ok) {
       const errorData = await response.text();
-      console.error('Webflow API error:', errorData);
-      throw new Error(`Failed to update item: ${response.status} ${response.statusText}`);
+      console.error('❌ Webflow API error:', response.status);
+      console.error('Error details:', errorData);
+      
+      // Try to parse the error to get more details
+      try {
+        const errorJson = JSON.parse(errorData);
+        console.error('Parsed error:', JSON.stringify(errorJson, null, 2));
+        if (errorJson.message) console.error('Error message:', errorJson.message);
+        if (errorJson.details) console.error('Error details:', errorJson.details);
+      } catch (e) {
+        console.error('Could not parse error as JSON');
+      }
+      
+      return NextResponse.json(
+        { 
+          error: 'Failed to update item',
+          details: errorData,
+          status: response.status
+        },
+        { status: response.status }
+      );
     }
 
     const updatedItem = await response.json();
+    console.log('✅ Item updated successfully');
     return NextResponse.json(updatedItem);
   } catch (error) {
     console.error('Error updating item:', error);

@@ -327,60 +327,98 @@ a.secondary {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .modal {
-  background: white;
-  border-radius: 8px;
+  background: var(--bg-secondary);
+  border-radius: 16px;
   padding: 0;
-  max-width: 90vw;
-  width: 100%;
+  max-width: 900px;
+  width: 90vw;
   max-height: 90vh;
   overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .modalHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.5rem 1.5rem 1rem 1.5rem;
-  border-bottom: 1px solid #e5e7eb;
+  padding: 2rem 2rem 1.5rem 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 107, 53, 0.05);
 }
 
 .modalHeader h3 {
   margin: 0;
-  font-size: 1.25rem;
-  font-weight: 600;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.modalHeader h3::before {
+  content: '✏️';
+  font-size: 1.5rem;
 }
 
 .closeButton {
-  background: none;
-  border: none;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   font-size: 1.5rem;
   cursor: pointer;
-  padding: 0.25rem;
-  border-radius: 4px;
-  color: #6b7280;
+  padding: 0.5rem;
+  border-radius: 8px;
+  color: var(--text-secondary);
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
 }
 
 .closeButton:hover {
-  background: #f3f4f6;
-  color: #374151;
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #ef4444;
+  transform: scale(1.1);
 }
 
 .modalBody {
-  padding: 1.5rem;
+  padding: 2rem;
+  background: var(--bg-card);
 }
 
 .formGroup {
@@ -389,33 +427,44 @@ a.secondary {
 
 .formGroup label {
   display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-  color: #374151;
-  font-size: 0.875rem;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  letter-spacing: 0.01em;
 }
 
 .formInput,
 .formTextarea {
   width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  transition: border-color 0.2s ease;
+  padding: 0.875rem 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
   box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-primary);
 }
 
 .formInput:focus,
 .formTextarea:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: var(--accent-orange);
+  box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.15);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.formInput::placeholder,
+.formTextarea::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.7;
 }
 
 .formTextarea {
   resize: vertical;
-  min-height: 100px;
+  min-height: 120px;
+  line-height: 1.6;
 }
 
 .switchLabel {
@@ -484,139 +533,65 @@ a.secondary {
 .modalFooter {
   display: flex;
   justify-content: flex-end;
-  gap: 1rem;
+  gap: 1.5rem;
   flex-direction: column;
-  padding: 1rem 1.5rem 1.5rem 1.5rem;
-  border-top: 1px solid #e5e7eb;
+  padding: 1.5rem 2rem 2rem 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.2);
 }
 
 .modalFooterrow {
   display: flex;
   justify-content: flex-end;
   gap: 1rem;
-  padding: 0rem 1.5rem 0rem 1.5rem;
+  padding: 0;
 }
 
 .cancelButton,
 .saveButton {
-  padding: 0.75rem 1.5rem;
-  border-radius: 6px;
-  font-weight: 500;
-  font-size: 0.875rem;
+  border-radius: 10px;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
   border: none;
+  font-size: 0.95rem;
 }
 
 .cancelButton {
-  background: #f3f4f6;
-  color: #374151;
+  padding: 0.875rem 2rem;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-secondary);
+  border: 2px solid rgba(255, 255, 255, 0.1);
 }
 
 .cancelButton:hover {
-  background: #e5e7eb;
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: var(--text-primary);
+  transform: translateY(-1px);
 }
 
 .saveButton {
-  background: #14a68e;
+  padding: 0.875rem 2.5rem;
+  background: linear-gradient(135deg, #FF6B35 0%, #f59e42 100%);
   color: white;
+  box-shadow: 0 4px 16px rgba(255, 107, 53, 0.4);
 }
 
+.saveButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 107, 53, 0.5);
+}
 
 .saveButton:disabled {
-  background: #9ca3af;
+  background: rgba(107, 114, 128, 0.5);
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 @media (prefers-color-scheme: dark) {
-  .modal {
-    background: #1f2937;
-  }
-
-  .modalHeader {
-    border-bottom-color: #374151;
-  }
-
-  .modalHeader h3 {
-    color: #f9fafb;
-  }
-
-  .closeButton {
-    color: #9ca3af;
-  }
-
-  .closeButton:hover {
-    background: #374151;
-    color: #f9fafb;
-  }
-
-  .formGroup label {
-    color: #f9fafb;
-  }
-
-  .formInput,
-  .formTextarea {
-    background: #374151;
-    border-color: #4b5563;
-    color: #f9fafb;
-  }
-
-  .formInput:focus,
-  .formTextarea:focus {
-    border-color: #60a5fa;
-    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
-  }
-
-  .modalFooter {
-    border-top-color: #374151;
-  }
-
-  .cancelButton {
-    background: #374151;
-    color: #f9fafb;
-  }
-
-  .cancelButton:hover {
-    background: #4b5563;
-  }
-
- 
-
- 
-
-  .switchLabel {
-    color: #f9fafb;
-  }
-
-  .switchToggle {
-    background: #4b5563;
-  }
-
-  .switchToggle:hover {
-    background: #6b7280;
-  }
-
-  .switchInput:checked + .switchToggle {
-    background: #60a5fa;
-  }
-
-  .switchInput:checked + .switchToggle:hover {
-    background: #3b82f6;
-  }
-
-  .switchSlider {
-    background: #f9fafb;
-  }
-
-  .statusBadge.draft {
-    background: #451a03;
-    color: #fbbf24;
-  }
-
-  .statusBadge.published {
-    background: #064e3b;
-    color: #34d399;
-  }
+  /* Modal is now always dark themed regardless of system preference */
 }
 .backButton{
   color: var(--text-secondary);
@@ -723,11 +698,7 @@ a.secondary {
 }
 
 .scrapedDataSection {
-  background: var(--bg-card);
-  border-radius: 16px;
-  padding: 2rem;
   margin-bottom: 2rem;
-  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .sectionHeader {
@@ -926,8 +897,7 @@ a.secondary {
     color: #d1d5db;
   }
 
-  .scrapingSection,
-  .scrapedDataSection {
+  .scrapingSection {
     background: #374151;
   }
 
