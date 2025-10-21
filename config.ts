@@ -13,4 +13,16 @@ export const SITE_ID = process.env.NEXT_PUBLIC_SITE_ID || '6865ac77d1a4f0d42c02c
 // Image hosting configuration - ImgBB
 // Get your free API key at https://api.imgbb.com/
 // IMPORTANT: Set this as an environment variable in production!
-export const IMGBB_API_KEY = process.env.IMGBB_API_KEY || 'df2bb71915b7c58cbcbdc8e00a41d668'; 
+export const IMGBB_API_KEY = process.env.IMGBB_API_KEY || 'df2bb71915b7c58cbcbdc8e00a41d668';
+
+// Clerk Authentication Configuration
+// IMPORTANT: Set these as environment variables in production!
+export const CLERK_PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || '';
+export const CLERK_SECRET_KEY = process.env.CLERK_SECRET_KEY || '';
+export const CLERK_WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET || '';
+
+// Clerk URLs
+export const CLERK_SIGN_IN_URL = process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL || '/sign-in';
+export const CLERK_SIGN_UP_URL = process.env.NEXT_PUBLIC_CLERK_SIGN_UP_URL || '/sign-up';
+export const CLERK_AFTER_SIGN_IN_URL = process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL || '/';
+export const CLERK_AFTER_SIGN_UP_URL = process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL || '/'; 
