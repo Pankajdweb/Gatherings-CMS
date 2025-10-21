@@ -16,10 +16,10 @@ export const SITE_ID = process.env.NEXT_PUBLIC_SITE_ID || '6865ac77d1a4f0d42c02c
 export const IMGBB_API_KEY = process.env.IMGBB_API_KEY || 'df2bb71915b7c58cbcbdc8e00a41d668';
 
 // Clerk Authentication Configuration
-// IMPORTANT: Set these as environment variables in production!
-export const CLERK_PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || '';
-export const CLERK_SECRET_KEY = process.env.CLERK_SECRET_KEY || '';
-export const CLERK_WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET || '';
+// TEMPORARY: Keys added directly for deployment - move to env vars later!
+export const CLERK_PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || 'pk_test_Y2xlcmsuZGV2LmNsZXJrLmF1dGguc2VydmljZXMk';
+export const CLERK_SECRET_KEY = process.env.CLERK_SECRET_KEY || 'sk_test_Y2xlcmsuZGV2LmNsZXJrLmF1dGguc2VydmljZXMk';
+export const CLERK_WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET || 'whsec_test_webhook_secret_placeholder';
 
 // Clerk URLs
 export const CLERK_SIGN_IN_URL = process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL || '/sign-in';
