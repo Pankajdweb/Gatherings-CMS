@@ -25,7 +25,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
+    <ClerkProvider
+      signInUrl="/sign-in"
+      signUpUrl="/sign-up"
+      afterSignInUrl="/"
+      afterSignUpUrl="/"
+    >
       <html lang="en">
         <body className={`${geistSans.variable} ${geistMono.variable}`} suppressHydrationWarning={true}>
           <Navbar />

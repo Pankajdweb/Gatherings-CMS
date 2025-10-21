@@ -74,7 +74,7 @@ export async function POST(req: Request) {
 
       // Add phone number if available (optional - for information only)
       if (primaryPhone?.phone_number) {
-        webflowData.fieldData['phoe'] = primaryPhone.phone_number;
+        webflowData.fieldData['phone'] = primaryPhone.phone_number;
       }
 
       console.log('Syncing user to Webflow:', webflowData);

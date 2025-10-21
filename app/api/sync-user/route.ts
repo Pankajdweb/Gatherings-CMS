@@ -64,7 +64,7 @@ export async function POST() {
 
     // Add phone if available
     if (primaryPhone?.phoneNumber) {
-      webflowData.fieldData['phoe'] = primaryPhone.phoneNumber;
+      webflowData.fieldData['phone'] = primaryPhone.phoneNumber;
     }
 
     const response = await fetch(
