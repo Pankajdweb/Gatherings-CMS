@@ -94,7 +94,7 @@ export default function AddItemPage() {
           }));
         }
       } catch (error) {
-        console.error("Error fetching data:", error);
+        // Silently fail
       }
     };
 
@@ -114,12 +114,8 @@ export default function AddItemPage() {
     try {
       let thumbnailData = formData.thumbnail;
       
-      // If there's a pending image file, upload it first
       if (pendingImageFile) {
-        console.log('=== Uploading image before creating item ===');
-        console.log('Pending file:', pendingImageFile.name);
-        
-        try {
+        try{
           const imageFormData = new FormData();
           imageFormData.append('file', pendingImageFile);
           
@@ -134,10 +130,8 @@ export default function AddItemPage() {
           }
           
           const imageData = await uploadResponse.json();
-          console.log('✅ Image uploaded:', imageData);
           thumbnailData = imageData;
         } catch (uploadError) {
-          console.error('❌ Image upload failed:', uploadError);
           setCmsMessage(`❌ Failed to upload image: ${uploadError instanceof Error ? uploadError.message : 'Unknown error'}`);
           setIsSendingToCMS(false);
           return; // Don't proceed with creation if image upload fails
@@ -207,9 +201,8 @@ export default function AddItemPage() {
         handleClearData();
         setCmsMessage("");
       }, 3000);
-    } catch (error) {
-      console.error("Error creating item:", error);
-      setCmsMessage(
+      } catch (error) {
+        setCmsMessage(
         `❌ Failed to create item: ${
           error instanceof Error ? error.message : "Unknown error"
         }`

@@ -82,12 +82,10 @@ export async function POST() {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Failed to create user in Webflow:', response.status, errorText);
       throw new Error(`Webflow API error: ${response.status}`);
     }
 
     const result = await response.json();
-    console.log('User synced to Webflow successfully:', result);
 
     return NextResponse.json({ 
       success: true, 
@@ -96,7 +94,6 @@ export async function POST() {
     });
 
   } catch (error) {
-    console.error('Error syncing user:', error);
     return NextResponse.json(
       { 
         success: false, 

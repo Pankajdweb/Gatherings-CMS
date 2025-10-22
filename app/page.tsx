@@ -15,8 +15,6 @@ async function getCollectionItems() {
     }
   });
   if (!res.ok) {
-    const errorText = await res.text();
-    console.error('Collection API error:', res.status, errorText);
     throw new Error(`Failed to fetch collection items: ${res.status} ${res.statusText}`);
   }
   return res.json();
@@ -96,10 +94,6 @@ export default function Home() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        console.log('🔄 Starting data fetch...');
-        
-        // First, get current user's Webflow ID
-        console.log('👤 Fetching current user...');
         const userResponse = await fetch('/api/current-user-webflow', {
           headers: {
             'Content-Type': 'application/json',
@@ -112,36 +106,26 @@ export default function Home() {
           const userData = await userResponse.json();
           userWebflowId = userData.webflowUserId;
           setCurrentUserWebflowId(userWebflowId);
-          console.log('✅ User found:', userData.name, 'Webflow ID:', userWebflowId);
-        } else {
-          const userError = await userResponse.text();
-          console.warn('⚠️ User fetch failed:', userResponse.status, userError);
         }
 
-        // Then fetch all events
-        console.log('📅 Fetching events...');
         const result = await getCollectionItems();
         setData(result);
-        console.log('✅ Events loaded:', result?.items?.length || 0, 'events');
       } catch (error) {
-        console.error("❌ Error fetching data:", error);
-        setData({ items: [] }); // Set empty data to prevent infinite loading
+        setData({ items: [] });
       } finally {
         setIsLoading(false);
-        console.log('🏁 Data fetch completed');
       }
     };
 
     fetchData();
   }, []);
 
-  // Sync user to Webflow on first visit
   useEffect(() => {
     const syncUser = async () => {
       try {
         await fetch('/api/sync-user', { method: 'POST' });
       } catch (error) {
-        console.error('Error syncing user:', error);
+        // Silently fail - user sync is non-critical
       }
     };
 

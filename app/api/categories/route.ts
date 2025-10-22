@@ -18,7 +18,6 @@ export async function GET() {
     const data = await response.json();
     return NextResponse.json({ items: data.items || [] });
   } catch (error) {
-    console.error('Error fetching categories:', error);
     return NextResponse.json(
       { error: 'Failed to fetch categories from Webflow' },
       { status: 500 }

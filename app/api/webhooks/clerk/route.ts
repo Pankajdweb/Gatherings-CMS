@@ -40,14 +40,10 @@ export async function POST(req: Request) {
       'svix-signature': svix_signature,
     }) as WebhookEvent;
   } catch (err) {
-    console.error('Error verifying webhook:', err);
     return new NextResponse('Error: Verification failed', { status: 400 });
   }
 
-  // Handle the webhook event
   const eventType = evt.type;
-  
-  console.log(`Webhook received: ${eventType}`);
 
   // Handle user.created event (when user signs up)
   if (eventType === 'user.created') {
@@ -72,12 +68,9 @@ export async function POST(req: Request) {
         }
       };
 
-      // Add phone number if available (optional - for information only)
       if (primaryPhone?.phone_number) {
         webflowData.fieldData['phone'] = primaryPhone.phone_number;
       }
-
-      console.log('Syncing user to Webflow:', webflowData);
 
       const response = await fetch(`https://api.webflow.com/v2/collections/${USER_COLLECTION_ID}/items`, {
         method: 'POST',
@@ -91,15 +84,12 @@ export async function POST(req: Request) {
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('Failed to create user in Webflow:', response.status, errorText);
         throw new Error(`Webflow API error: ${response.status} ${errorText}`);
       }
 
-      const result = await response.json();
-      console.log('User synced to Webflow successfully:', result);
+      await response.json();
 
     } catch (error) {
-      console.error('Error syncing user to Webflow:', error);
       // Don't fail the webhook - just log the error
       return new NextResponse(JSON.stringify({ 
         success: false, 

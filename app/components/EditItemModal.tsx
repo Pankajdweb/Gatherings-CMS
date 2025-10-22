@@ -31,13 +31,6 @@ export default function EditItemModal({ item, isOpen, onClose, onSave }: EditIte
     return '';
   };
 
-  // Log initial item data for debugging
-  console.log('=== EditItemModal Opened ===');
-  console.log('Item ID:', item?.id);
-  console.log('Initial thumbnail data:', item?.fieldData?.thumbnail);
-  console.log('Thumbnail type:', typeof item?.fieldData?.thumbnail);
-  console.log('Thumbnail structure:', JSON.stringify(item?.fieldData?.thumbnail, null, 2));
-  
   const [formData, setFormData] = useState({
     name: item?.fieldData?.name || item?.name || '',
     slug: item?.fieldData?.slug || '',
@@ -365,10 +358,9 @@ export default function EditItemModal({ item, isOpen, onClose, onSave }: EditIte
           <ImageUpload
             currentImageUrl={formData.thumbnail}
             onImageUploaded={(imageData) => handleInputChange('thumbnail', imageData as any)}
-            onFileSelected={(file) => {
-              console.log('📁 File selected for thumbnail:', file?.name || 'none');
-              setPendingImageFile(file);
-            }}
+                onFileSelected={(file) => {
+                  setPendingImageFile(file);
+                }}
             uploadOnSelect={false}
             label="Thumbnail Image"
           />
