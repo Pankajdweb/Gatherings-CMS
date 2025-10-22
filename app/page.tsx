@@ -6,10 +6,18 @@ import { useState, useEffect } from "react";
 import { UserButton } from "@clerk/nextjs";
 import EditItemModal from "./components/EditItemModal";
 
+// Helper function to fetch collection items
 async function getCollectionItems() {
-  const res = await fetch(`/api/collection`, { cache: "no-store" });
+  const res = await fetch(`/api/collection`, { 
+    cache: "no-store",
+    headers: {
+      'Content-Type': 'application/json',
+    }
+  });
   if (!res.ok) {
-    throw new Error("Failed to fetch collection items");
+    const errorText = await res.text();
+    console.error('Collection API error:', res.status, errorText);
+    throw new Error(`Failed to fetch collection items: ${res.status} ${res.statusText}`);
   }
   return res.json();
 }
@@ -88,23 +96,39 @@ export default function Home() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        console.log('🔄 Starting data fetch...');
+        
         // First, get current user's Webflow ID
-        const userResponse = await fetch('/api/current-user-webflow');
+        console.log('👤 Fetching current user...');
+        const userResponse = await fetch('/api/current-user-webflow', {
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+        
         let userWebflowId = null;
         
         if (userResponse.ok) {
           const userData = await userResponse.json();
           userWebflowId = userData.webflowUserId;
           setCurrentUserWebflowId(userWebflowId);
+          console.log('✅ User found:', userData.name, 'Webflow ID:', userWebflowId);
+        } else {
+          const userError = await userResponse.text();
+          console.warn('⚠️ User fetch failed:', userResponse.status, userError);
         }
 
         // Then fetch all events
+        console.log('📅 Fetching events...');
         const result = await getCollectionItems();
         setData(result);
+        console.log('✅ Events loaded:', result?.items?.length || 0, 'events');
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("❌ Error fetching data:", error);
+        setData({ items: [] }); // Set empty data to prevent infinite loading
       } finally {
         setIsLoading(false);
+        console.log('🏁 Data fetch completed');
       }
     };
 
@@ -139,11 +163,70 @@ export default function Home() {
   };
 
   if (isLoading) {
-    return <div className={styles.page}>Loading...</div>;
+    return (
+      <div className={styles.page}>
+        <div style={{ 
+          display: 'flex', 
+          flexDirection: 'column', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          minHeight: '50vh',
+          gap: '1rem'
+        }}>
+          <div style={{ 
+            fontSize: '2rem',
+            animation: 'spin 1s linear infinite'
+          }}>⏳</div>
+          <p style={{ color: '#666', fontSize: '1.1rem' }}>
+            Loading your events...
+          </p>
+          <p style={{ color: '#999', fontSize: '0.9rem' }}>
+            This may take a moment if it's your first visit
+          </p>
+        </div>
+        <style jsx>{`
+          @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+          }
+        `}</style>
+      </div>
+    );
   }
 
   if (!data) {
-    return <div className={styles.page}>Error loading data</div>;
+    return (
+      <div className={styles.page}>
+        <div style={{ 
+          display: 'flex', 
+          flexDirection: 'column', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          minHeight: '50vh',
+          gap: '1rem'
+        }}>
+          <div style={{ fontSize: '3rem' }}>❌</div>
+          <h3 style={{ color: '#ef4444', margin: 0 }}>Error Loading Data</h3>
+          <p style={{ color: '#666', textAlign: 'center', maxWidth: '400px' }}>
+            There was an issue loading your events. Please check your internet connection and try refreshing the page.
+          </p>
+          <button 
+            onClick={() => window.location.reload()} 
+            style={{
+              padding: '0.75rem 1.5rem',
+              background: '#3b82f6',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontSize: '1rem'
+            }}
+          >
+            🔄 Refresh Page
+          </button>
+        </div>
+      </div>
+    );
   }
 
   // Filter events to show only current user's events
