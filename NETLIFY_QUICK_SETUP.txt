@@ -1,0 +1,70 @@
+========================================
+NETLIFY ENVIRONMENT VARIABLES QUICK SETUP
+========================================
+
+Go to: Netlify Dashboard → Your Site → Site Settings → Environment Variables
+
+Then add these variables ONE BY ONE:
+
+========================================
+CRITICAL - ADD THESE FIRST:
+========================================
+
+Key: NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+Value: pk_test_cmVsYXhpbmctd2FscnVzLTQ4LmNsZXJrLmFjY291bnRzLmRldiQ
+
+Key: CLERK_SECRET_KEY
+Value: sk_test_FLhR1cYmsAbmMb0JrULgFOtCqLHTuupDYZPcQRKndM
+
+Key: NEXT_PUBLIC_CLERK_SIGN_IN_URL
+Value: /sign-in
+
+Key: NEXT_PUBLIC_CLERK_SIGN_UP_URL
+Value: /sign-up
+
+Key: NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL
+Value: /
+
+Key: NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL
+Value: /
+
+========================================
+OPTIONAL (Has fallbacks in config.ts):
+========================================
+
+Key: NEXT_PUBLIC_AUTH_TOKEN
+Value: 89d5a0a7ce86998b8a71039c802bbed0b05796d9986d5e60aede37b2cd22d3c2
+
+Key: NEXT_PUBLIC_COLLECTION_ID
+Value: 686b88dfd246d066e6c034f8
+
+Key: NEXT_PUBLIC_CATEGORY_COLLECTION_ID
+Value: 686b89fba5b90558f5ce471f
+
+Key: NEXT_PUBLIC_COMMUNITY_COLLECTION_ID
+Value: 68e70edb8c0ca22e35eccd27
+
+Key: NEXT_PUBLIC_LOCATION_COLLECTION_ID
+Value: 686b87fd7142a7a251518c48
+
+Key: NEXT_PUBLIC_USER_COLLECTION_ID
+Value: 68f2e929c205a65075268bc4
+
+Key: NEXT_PUBLIC_SITE_ID
+Value: 6865ac77d1a4f0d42c02ccbf
+
+Key: IMGBB_API_KEY
+Value: df2bb71915b7c58cbcbdc8e00a41d668
+
+========================================
+AFTER ADDING VARIABLES:
+========================================
+
+1. Click "Save" for each variable
+2. Go to "Deploys" tab
+3. Click "Trigger deploy" → "Deploy site"
+4. Wait for build to complete
+5. Test your site!
+
+========================================
+
