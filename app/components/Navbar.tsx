@@ -33,8 +33,6 @@ export default function Navbar() {
         <div className={styles.userSection}>
           <UserButton 
             afterSignOutUrl="/sign-in"
-            signInUrl="/sign-in"
-            signUpUrl="/sign-up"
             appearance={{
               elements: {
                 avatarBox: "w-10 h-10"
