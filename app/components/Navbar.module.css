@@ -2,7 +2,7 @@
   position: sticky;
   top: 0;
   z-index: 1000;
-  background: rgba(35, 38, 58, 0.95);
+  background: rgba(20, 18, 31, 0.95);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
@@ -49,28 +49,23 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  color: var(--text-secondary);
+  color: #ffffff;
+  background: rgba(110, 86, 207);
   text-decoration: none;
-  font-weight: 500;
+  font-weight: 600;
   font-size: 0.95rem;
   border-radius: 10px;
   transition: all 0.2s ease;
   position: relative;
+  border: 1px solid rgba(110, 86, 207, 0.3);
 }
 
 .navLink:hover {
-  color: var(--text-primary);
-  background: rgba(255, 107, 53, 0.1);
-}
-
-.navLink:hover .navIcon {
-  transform: scale(1.2);
-}
-
-.navIcon {
-  font-size: 1.1rem;
-  transition: transform 0.2s ease;
-  display: inline-block;
+  color: #ffffff;
+  background: rgba(110, 86, 207, 0.4);
+  transform: translateY(-2px);
+  border-color: rgba(110, 86, 207, 0.5);
+  box-shadow: 0 4px 12px rgba(110, 86, 207, 0.3);
 }
 
 .userSection {
@@ -81,9 +76,11 @@
 
 /* Active link styles */
 .navLink[aria-current="page"] {
-  color: var(--accent-orange);
-  background: rgba(255, 107, 53, 0.15);
-  font-weight: 600;
+  color: #ffffff;
+  background: #6E56CF;
+  font-weight: 700;
+  border-color: #6E56CF;
+  box-shadow: 0 4px 12px rgba(110, 86, 207, 0.4);
 }
 
 /* Responsive Design */
@@ -105,10 +102,6 @@
     padding: 0.6rem 1rem;
     font-size: 0.875rem;
   }
-
-  .navIcon {
-    font-size: 1rem;
-  }
 }
 
 @media (max-width: 480px) {
@@ -124,7 +117,7 @@
 /* Dark theme compatibility */
 @media (prefers-color-scheme: dark) {
   .navbar {
-    background: rgba(35, 38, 58, 0.98);
+    background: rgba(20, 18, 31, 0.98);
   }
 }
 

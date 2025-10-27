@@ -3,7 +3,6 @@ import { AUTH_TOKEN, COLLECTION_ID } from '../../../config';
 
 export async function GET() {
   try {
-    // Fetch collection metadata
     const collectionResponse = await fetch(`https://api.webflow.com/v2/collections/${COLLECTION_ID}`, {
       headers: {
         'Authorization': `Bearer ${AUTH_TOKEN}`,
@@ -11,7 +10,6 @@ export async function GET() {
       }
     });
 
-    // Fetch collection items
     const itemsResponse = await fetch(`https://api.webflow.com/v2/collections/${COLLECTION_ID}/items`, {
       headers: {
         'Authorization': `Bearer ${AUTH_TOKEN}`,
@@ -19,8 +17,12 @@ export async function GET() {
       }
     });
 
-    if (!collectionResponse.ok || !itemsResponse.ok) {
-      throw new Error('Failed to fetch from Webflow API');
+    if (!collectionResponse.ok) {
+      throw new Error(`Failed to fetch collection metadata: ${collectionResponse.status}`);
+    }
+
+    if (!itemsResponse.ok) {
+      throw new Error(`Failed to fetch collection items: ${itemsResponse.status}`);
     }
 
     const collectionData = await collectionResponse.json();
@@ -31,9 +33,11 @@ export async function GET() {
       items: itemsData.items || []
     });
   } catch (error) {
-    console.error('Error fetching from Webflow:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch collection data from Webflow' },
+      { 
+        error: 'Failed to fetch collection data from Webflow',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     );
   }

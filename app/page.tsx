@@ -6,10 +6,16 @@ import { useState, useEffect } from "react";
 import { UserButton } from "@clerk/nextjs";
 import EditItemModal from "./components/EditItemModal";
 
+// Helper function to fetch collection items
 async function getCollectionItems() {
-  const res = await fetch(`/api/collection`, { cache: "no-store" });
+  const res = await fetch(`/api/collection`, { 
+    cache: "no-store",
+    headers: {
+      'Content-Type': 'application/json',
+    }
+  });
   if (!res.ok) {
-    throw new Error("Failed to fetch collection items");
+    throw new Error(`Failed to fetch collection items: ${res.status} ${res.statusText}`);
   }
   return res.json();
 }
@@ -88,8 +94,12 @@ export default function Home() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // First, get current user's Webflow ID
-        const userResponse = await fetch('/api/current-user-webflow');
+        const userResponse = await fetch('/api/current-user-webflow', {
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+        
         let userWebflowId = null;
         
         if (userResponse.ok) {
@@ -98,11 +108,10 @@ export default function Home() {
           setCurrentUserWebflowId(userWebflowId);
         }
 
-        // Then fetch all events
         const result = await getCollectionItems();
         setData(result);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        setData({ items: [] });
       } finally {
         setIsLoading(false);
       }
@@ -111,13 +120,26 @@ export default function Home() {
     fetchData();
   }, []);
 
-  // Sync user to Webflow on first visit
   useEffect(() => {
     const syncUser = async () => {
       try {
         await fetch('/api/sync-user', { method: 'POST' });
+        
+        // After syncing, fetch the user's Webflow ID again
+        const userResponse = await fetch('/api/current-user-webflow', {
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+        
+        if (userResponse.ok) {
+          const userData = await userResponse.json();
+          if (userData.webflowUserId) {
+            setCurrentUserWebflowId(userData.webflowUserId);
+          }
+        }
       } catch (error) {
-        console.error('Error syncing user:', error);
+        // Silently fail - user sync is non-critical
       }
     };
 
@@ -139,11 +161,91 @@ export default function Home() {
   };
 
   if (isLoading) {
-    return <div className={styles.page}>Loading...</div>;
+    return (
+      <div className={styles.page}>
+        <main className={styles.main}>
+          <div className={styles.apiData}>
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '3rem 2rem',
+              background: 'linear-gradient(135deg, rgba(110, 86, 207, 0.1) 0%, rgba(110, 86, 207, 0.05) 100%)',
+              borderRadius: '16px',
+              border: '2px solid rgba(110, 86, 207, 0.3)',
+              boxShadow: '0 8px 24px rgba(110, 86, 207, 0.2)',
+              margin: '2rem auto',
+              maxWidth: '600px',
+              textAlign: 'center'
+            }}>
+              <div style={{ 
+                fontSize: '2rem',
+                marginBottom: '1rem',
+                animation: 'spin 1s linear infinite'
+              }}>⏳</div>
+              <h3 style={{ 
+                color: 'var(--text-primary)', 
+                fontSize: '1.5rem', 
+                fontWeight: '700',
+                marginBottom: '1rem'
+              }}>
+                Loading Your Events
+              </h3>
+              <p style={{ 
+                color: 'var(--text-secondary)', 
+                fontSize: '1.1rem',
+                marginBottom: '0',
+                lineHeight: '1.6'
+              }}>
+                This may take a moment if it's your first visit
+              </p>
+            </div>
+          </div>
+        </main>
+        <style jsx>{`
+          @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+          }
+        `}</style>
+      </div>
+    );
   }
 
   if (!data) {
-    return <div className={styles.page}>Error loading data</div>;
+    return (
+      <div className={styles.page}>
+        <div style={{ 
+          display: 'flex', 
+          flexDirection: 'column', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          minHeight: '50vh',
+          gap: '1rem'
+        }}>
+          <div style={{ fontSize: '3rem' }}>❌</div>
+          <h3 style={{ color: '#ef4444', margin: 0 }}>Error Loading Data</h3>
+          <p style={{ color: '#666', textAlign: 'center', maxWidth: '400px' }}>
+            There was an issue loading your events. Please check your internet connection and try refreshing the page.
+          </p>
+          <button 
+            onClick={() => window.location.reload()} 
+            style={{
+              padding: '0.75rem 1.5rem',
+              background: '#3b82f6',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontSize: '1rem'
+            }}
+          >
+            🔄 Refresh Page
+          </button>
+        </div>
+      </div>
+    );
   }
 
   // Filter events to show only current user's events
@@ -158,7 +260,10 @@ export default function Home() {
           <div style={{ 
             textAlign: 'center', 
             marginBottom: '2rem',
-            paddingTop: '1rem'
+            paddingTop: '1rem',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
           }}>
             <h4 style={{ 
               fontSize: '2rem', 
@@ -200,11 +305,6 @@ export default function Home() {
                   <p><strong>Club:</strong> {item.fieldData['club-name']}</p>
                 )}
 
-                {/* Organiser */}
-                {item.fieldData?.['event-organiser-name'] && (
-                  <p><strong>Organiser:</strong> {item.fieldData['event-organiser-name']}</p>
-                )}
-
                 {/* Date and Time */}
                 {item.fieldData?.['date-and-time'] && (
                   <p><strong>📅 Date:</strong> {new Date(item.fieldData['date-and-time']).toLocaleString()}</p>
@@ -222,21 +322,11 @@ export default function Home() {
                       🖼️ Has Thumbnail
                     </span>
                   )}
-                  {item.fieldData?.['featured-image'] && (
-                    <span className={styles.statusBadge} style={{ background: '#fef3c7', color: '#92400e' }}>
-                      ⭐ Featured
-                    </span>
-                  )}
                 </div>
 
                 {/* Ticket Link */}
                 {item.fieldData?.['ticket-link'] && (
                   <p><strong>🎟️ Tickets:</strong> <a href={item.fieldData['ticket-link']} target="_blank" rel="noopener noreferrer" style={{ color: '#3b82f6' }}>Get Tickets</a></p>
-                )}
-
-                {/* Order */}
-                {typeof item.fieldData?.order !== 'undefined' && (
-                  <p><strong>Order:</strong> {item.fieldData.order}</p>
                 )}
 
                 {/* Archive Status */}
@@ -305,11 +395,65 @@ export default function Home() {
             ))}
           </div>
           {userEvents.length === 0 && !isLoading && (
-            <p className={styles.error}>
-              {currentUserWebflowId 
-                ? "You haven't created any events yet. Click 'Add New Event' to get started!"
-                : "Loading your events..."}
-            </p>
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '3rem 2rem',
+              background: 'linear-gradient(135deg, rgba(110, 86, 207, 0.1) 0%, rgba(110, 86, 207, 0.05) 100%)',
+              borderRadius: '16px',
+              border: '2px solid rgba(110, 86, 207, 0.3)',
+              boxShadow: '0 8px 24px rgba(110, 86, 207, 0.2)',
+              margin: '2rem auto',
+              maxWidth: '600px',
+              textAlign: 'center'
+            }}>
+             
+              <h3 style={{ 
+                color: 'var(--text-primary)', 
+                fontSize: '1.5rem', 
+                fontWeight: '700',
+                marginBottom: '1rem'
+              }}>
+                No Events
+              </h3>
+              <p style={{ 
+                color: 'var(--text-secondary)', 
+                fontSize: '1.1rem',
+                marginBottom: '1.5rem',
+                lineHeight: '1.6'
+              }}>
+                You haven't created any events yet. Get started by adding your first event!
+              </p>
+              <a 
+                href="/addevents"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  padding: '1rem 2rem',
+                  background: 'linear-gradient(135deg, #6E56CF 0%, #8b73e0 100%)',
+                  color: 'white',
+                  textDecoration: 'none',
+                  borderRadius: '12px',
+                  fontWeight: '600',
+                  fontSize: '1rem',
+                  transition: 'all 0.2s ease',
+                  boxShadow: '0 4px 12px rgba(110, 86, 207, 0.4)',
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = '0 6px 20px rgba(110, 86, 207, 0.5)';
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(110, 86, 207, 0.4)';
+                }}
+              >
+                Add Your First Event
+              </a>
+            </div>
           )}
         </div>
 

@@ -3,17 +3,17 @@
   --gray-alpha-200: rgba(var(--gray-rgb), 0.08);
   --gray-alpha-100: rgba(var(--gray-rgb), 0.05);
 
-  --button-primary-hover: #e55a2b;
-  --button-secondary-hover: #2a2d3a;
+  --button-primary-hover: #5a45b8;
+  --button-secondary-hover: #211f2e;
 
   /* Dark theme colors from reference */
-  --bg-primary: #1a1d2e;
-  --bg-secondary: #23263a;
-  --bg-card: #2a2d3a;
+  --bg-primary: #14121F;
+  --bg-secondary: #1a1825;
+  --bg-card: #211f2e;
   --text-primary: #ffffff;
   --text-secondary: #a0a3bd;
-  --accent-orange: #FF6B35;
-  --accent-orange-hover: #e55a2b;
+  --accent-orange: #6E56CF;
+  --accent-orange-hover: #5a45b8;
 
   padding-top: 2rem;
   min-height: 100vh;
@@ -132,13 +132,13 @@ a.secondary {
   font-weight: 600;
   font-size: 1rem;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+  box-shadow: 0 4px 12px rgba(110, 86, 207, 0.3);
 }
 
 .navButton:hover {
   background: var(--accent-orange-hover);
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(255, 107, 53, 0.4);
+  box-shadow: 0 6px 16px rgba(110, 86, 207, 0.4);
 }
 
 .scraperLink {
@@ -256,7 +256,7 @@ a.secondary {
 .item:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-  border-color: rgba(255, 107, 53, 0.3);
+  border-color: rgba(110, 86, 207, 0.3);
 }
 
 .item h6 {
@@ -375,7 +375,7 @@ a.secondary {
   align-items: center;
   padding: 2rem 2rem 1.5rem 2rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 107, 53, 0.05);
+  background: rgba(110, 86, 207, 0.05);
 }
 
 .modalHeader h3 {
@@ -451,7 +451,7 @@ a.secondary {
 .formTextarea:focus {
   outline: none;
   border-color: var(--accent-orange);
-  box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.15);
+  box-shadow: 0 0 0 4px rgba(110, 86, 207, 0.15);
   background: rgba(255, 255, 255, 0.05);
 }
 
@@ -573,14 +573,14 @@ a.secondary {
 
 .saveButton {
   padding: 0.875rem 2.5rem;
-  background: linear-gradient(135deg, #FF6B35 0%, #f59e42 100%);
+  background: linear-gradient(135deg, #6E56CF 0%, #8b73e0 100%);
   color: white;
-  box-shadow: 0 4px 16px rgba(255, 107, 53, 0.4);
+  box-shadow: 0 4px 16px rgba(110, 86, 207, 0.4);
 }
 
 .saveButton:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(255, 107, 53, 0.5);
+  box-shadow: 0 6px 20px rgba(110, 86, 207, 0.5);
 }
 
 .saveButton:disabled {
@@ -775,7 +775,7 @@ a.secondary {
 .dataInput:focus {
   outline: none;
   border-color: var(--accent-orange);
-  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.15);
+  box-shadow: 0 0 0 3px rgba(110, 86, 207, 0.15);
   background: rgba(0, 0, 0, 0.3);
 }
 
@@ -799,7 +799,7 @@ a.secondary {
 .dataTextarea:focus {
   outline: none;
   border-color: var(--accent-orange);
-  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.15);
+  box-shadow: 0 0 0 3px rgba(110, 86, 207, 0.15);
   background: rgba(0, 0, 0, 0.3);
 }
 
@@ -826,13 +826,13 @@ a.secondary {
   transition: all 0.2s ease;
   width: 100%;
   margin-top: 2rem;
-  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+  box-shadow: 0 4px 12px rgba(110, 86, 207, 0.3);
 }
 
 .sendToCMSButton:hover:not(:disabled) {
   background: var(--accent-orange-hover);
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(255, 107, 53, 0.4);
+  box-shadow: 0 6px 16px rgba(110, 86, 207, 0.4);
 }
 
 .sendToCMSButton:disabled {

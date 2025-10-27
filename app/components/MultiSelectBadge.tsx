@@ -9,6 +9,7 @@ interface MultiSelectBadgeProps {
   onChange: (selectedIds: string[]) => void;
   label: string;
   placeholder?: string;
+  maxSelections?: number;
 }
 
 export default function MultiSelectBadge({
@@ -16,12 +17,17 @@ export default function MultiSelectBadge({
   selectedIds,
   onChange,
   label,
-  placeholder = 'Select...'
+  placeholder = 'Select...',
+  maxSelections
 }: MultiSelectBadgeProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleAdd = (id: string) => {
     if (!selectedIds.includes(id)) {
+      // Check if max selections limit is reached
+      if (maxSelections && selectedIds.length >= maxSelections) {
+        return; // Don't add if limit reached
+      }
       onChange([...selectedIds, id]);
     }
     setIsOpen(false);
@@ -36,11 +42,17 @@ export default function MultiSelectBadge({
     .filter(Boolean) as Array<{ id: string; name: string }>;
 
   const availableOptions = options.filter(opt => !selectedIds.includes(opt.id));
+  const isMaxReached = maxSelections ? selectedIds.length >= maxSelections : false;
 
   return (
     <div style={{ marginBottom: '1rem' }}>
       <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, color: '#ffffff' }}>
         {label}
+        {maxSelections && (
+          <span style={{ color: '#a0a3bd', fontSize: '0.85rem', fontWeight: 'normal', marginLeft: '0.5rem' }}>
+            ({selectedIds.length}/{maxSelections} selected)
+          </span>
+        )}
       </label>
 
       {/* Selected Items as Badges */}
@@ -68,12 +80,12 @@ export default function MultiSelectBadge({
                 alignItems: 'center',
                 gap: '0.5rem',
                 padding: '0.375rem 0.875rem',
-                background: '#FF6B35',
+                background: '#6E56CF',
                 color: 'white',
                 borderRadius: '20px',
                 fontSize: '0.875rem',
                 fontWeight: 600,
-                boxShadow: '0 2px 8px rgba(255, 107, 53, 0.3)'
+                boxShadow: '0 2px 8px rgba(110, 86, 207, 0.3)'
               }}
             >
               {option.name}
@@ -113,7 +125,7 @@ export default function MultiSelectBadge({
       <div style={{ position: 'relative' }}>
         <button
           type="button"
-          onClick={() => setIsOpen(!isOpen)}
+          onClick={() => !isMaxReached && setIsOpen(!isOpen)}
           className={styles.dataInput}
           style={{
             width: '100%',
@@ -121,18 +133,24 @@ export default function MultiSelectBadge({
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            cursor: 'pointer'
+            cursor: isMaxReached ? 'not-allowed' : 'pointer',
+            opacity: isMaxReached ? 0.6 : 1
           }}
+          disabled={isMaxReached}
         >
-          <span style={{ color: availableOptions.length > 0 ? '#a0a3bd' : '#6b7280' }}>
-            {availableOptions.length > 0 ? placeholder : 'All items selected'}
+          <span style={{ color: availableOptions.length > 0 && !isMaxReached ? '#a0a3bd' : '#6b7280' }}>
+            {isMaxReached 
+              ? `Maximum ${maxSelections} selections reached`
+              : availableOptions.length > 0 
+                ? placeholder 
+                : 'All items selected'}
           </span>
           <span style={{ fontSize: '0.75rem', color: '#a0a3bd' }}>
-            {isOpen ? '▲' : '▼'}
+            {!isMaxReached && (isOpen ? '▲' : '▼')}
           </span>
         </button>
 
-        {isOpen && availableOptions.length > 0 && (
+        {isOpen && availableOptions.length > 0 && !isMaxReached && (
           <div
             style={{
               position: 'absolute',
@@ -140,7 +158,7 @@ export default function MultiSelectBadge({
               left: 0,
               right: 0,
               marginTop: '0.5rem',
-              background: '#2a2d3a',
+              background: '#211f2e',
               border: '1px solid rgba(255, 255, 255, 0.1)',
               borderRadius: '8px',
               boxShadow: '0 8px 24px rgba(0, 0, 0, 0.3)',
@@ -167,7 +185,7 @@ export default function MultiSelectBadge({
                   borderBottom: '1px solid rgba(255, 255, 255, 0.05)'
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'rgba(255, 107, 53, 0.1)';
+                  e.currentTarget.style.background = 'rgba(110, 86, 207, 0.1)';
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.background = 'transparent';

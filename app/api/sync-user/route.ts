@@ -18,7 +18,7 @@ export async function POST() {
 
     // Check if user already exists in Webflow
     const checkResponse = await fetch(
-      `https://api.webflow.com/v2/collections/${USER_COLLECTION_ID}/items?fieldData.clerk-user-id=${userId}`,
+      `https://api.webflow.com/v2/collections/${USER_COLLECTION_ID}/items`,
       {
         headers: {
           'Authorization': `Bearer ${AUTH_TOKEN}`,
@@ -29,11 +29,18 @@ export async function POST() {
 
     if (checkResponse.ok) {
       const existingData = await checkResponse.json();
-      if (existingData.items && existingData.items.length > 0) {
+      // Check if user with this clerk-user-id already exists
+      const existingUser = existingData.items?.find(
+        (item: any) => item.fieldData?.['clerk-user-id'] === userId
+      );
+      
+      if (existingUser) {
+        console.log('User already synced to Webflow:', existingUser.id);
         return NextResponse.json({ 
           success: true, 
           message: 'User already synced',
-          alreadyExists: true 
+          alreadyExists: true,
+          webflowUserId: existingUser.id
         });
       }
     }
@@ -64,7 +71,7 @@ export async function POST() {
 
     // Add phone if available
     if (primaryPhone?.phoneNumber) {
-      webflowData.fieldData['phoe'] = primaryPhone.phoneNumber;
+      webflowData.fieldData['phone'] = primaryPhone.phoneNumber;
     }
 
     const response = await fetch(
@@ -82,17 +89,45 @@ export async function POST() {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Failed to create user in Webflow:', response.status, errorText);
-      throw new Error(`Webflow API error: ${response.status}`);
+      console.error('Webflow API error:', errorText);
+      throw new Error(`Webflow API error: ${response.status} - ${errorText}`);
     }
 
     const result = await response.json();
-    console.log('User synced to Webflow successfully:', result);
+    console.log('User successfully synced to Webflow:', result.id);
+    
+    // Publish the user immediately to make it live
+    try {
+      const publishResponse = await fetch(
+        `https://api.webflow.com/v2/collections/${USER_COLLECTION_ID}/items/publish`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${AUTH_TOKEN}`,
+            'accept-version': '2.0.0',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            itemIds: [result.id]
+          }),
+        }
+      );
+      
+      if (publishResponse.ok) {
+        console.log('✅ User published to live site:', result.id);
+      } else {
+        const publishError = await publishResponse.text();
+        console.warn('⚠️ Could not publish user (may already be live):', publishError);
+      }
+    } catch (publishError) {
+      console.warn('⚠️ Publish step failed (user created but may need manual publish):', publishError);
+    }
 
     return NextResponse.json({ 
       success: true, 
       message: 'User synced to Webflow',
-      data: result 
+      data: result,
+      webflowUserId: result.id
     });
 
   } catch (error) {

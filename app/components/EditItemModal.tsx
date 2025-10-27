@@ -13,43 +13,39 @@ interface EditItemModalProps {
 }
 
 export default function EditItemModal({ item, isOpen, onClose, onSave }: EditItemModalProps) {
-  // Helper function to convert date format for HTML date input
+  // Helper function to convert date format for HTML datetime-local input
   const formatDateForInput = (dateString: string) => {
     if (!dateString) return '';
     
-    // If it's already in YYYY-MM-DD format, return as is
-    if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
-      return dateString;
+    // If it's already in YYYY-MM-DDTHH:mm format, return as is
+    if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(dateString)) {
+      return dateString.slice(0, 16); // Returns YYYY-MM-DDTHH:mm
     }
     
     // Try to parse different date formats
     const date = new Date(dateString);
     if (!isNaN(date.getTime())) {
-      return date.toISOString().split('T')[0]; // Returns YYYY-MM-DD
+      // Convert to local time and format for datetime-local input
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      return `${year}-${month}-${day}T${hours}:${minutes}`;
     }
     
     return '';
   };
 
-  // Log initial item data for debugging
-  console.log('=== EditItemModal Opened ===');
-  console.log('Item ID:', item?.id);
-  console.log('Initial thumbnail data:', item?.fieldData?.thumbnail);
-  console.log('Thumbnail type:', typeof item?.fieldData?.thumbnail);
-  console.log('Thumbnail structure:', JSON.stringify(item?.fieldData?.thumbnail, null, 2));
-  
   const [formData, setFormData] = useState({
     name: item?.fieldData?.name || item?.name || '',
     slug: item?.fieldData?.slug || '',
     description: item?.fieldData?.description || '',
     'club-name': item?.fieldData?.['club-name'] || '',
-    'event-organiser-name': item?.fieldData?.['event-organiser-name'] || '',
     'date-and-time': formatDateForInput(item?.fieldData?.['date-and-time'] || ''),
     address: item?.fieldData?.address || '',
     thumbnail: item?.fieldData?.thumbnail || '',  // Can be object {fileId, url, alt} or string
     'ticket-link': item?.fieldData?.['ticket-link'] || '',
-    'featured-image': item?.fieldData?.['featured-image'] || false,
-    order: item?.fieldData?.order || 0,
     isArchived: typeof item?.isArchived === 'boolean' ? item.isArchived : false,
     location: item?.fieldData?.location || '',
     'organiser-name': item?.fieldData?.['organiser-name'] || '',
@@ -222,91 +218,87 @@ export default function EditItemModal({ item, isOpen, onClose, onSave }: EditIte
         </div>
         
         <div className={styles.modalBody}>
+          <p style={{
+            color: 'var(--text-secondary)',
+            fontSize: '0.9rem',
+            marginBottom: '1.5rem',
+            padding: '0.75rem 1rem',
+            background: 'rgba(110, 86, 207, 0.05)',
+            borderLeft: '3px solid #6E56CF',
+            borderRadius: '4px'
+          }}>
+            💡 <strong>Fields marked with</strong> <span style={{color: 'red'}}>*</span> <strong>are required.</strong> Maximum 2 communities and 2 categories per event.
+          </p>
+          
           <div className={styles.formGroup}>
-            <label htmlFor="name">Event Name:</label>
+            <label htmlFor="name">Event Name: <span style={{color: 'red'}}>*</span></label>
             <input
               type="text"
               id="name"
               value={formData.name}
               onChange={(e) => handleInputChange('name', e.target.value)}
               className={styles.formInput}
+              required
             />
           </div>
 
           <div className={styles.formGroup}>
-            <label htmlFor="slug">Slug (URL):</label>
-            <input
-              type="text"
-              id="slug"
-              value={formData.slug}
-              onChange={(e) => handleInputChange('slug', e.target.value)}
-              className={styles.formInput}
-            />
-          </div>
-
-          <div className={styles.formGroup}>
-            <label htmlFor="description">Description:</label>
+            <label htmlFor="description">Description: <span style={{color: 'red'}}>*</span></label>
             <textarea
               id="description"
               value={formData.description}
               onChange={(e) => handleInputChange('description', e.target.value)}
               className={styles.formTextarea}
               rows={4}
+              required
             />
           </div>
 
           <div className={styles.formGroup}>
-            <label htmlFor="club-name">Club Name:</label>
+            <label htmlFor="club-name">Club Name: <span style={{color: 'red'}}>*</span></label>
             <input
               type="text"
               id="club-name"
               value={formData['club-name']}
               onChange={(e) => handleInputChange('club-name', e.target.value)}
               className={styles.formInput}
+              required
             />
           </div>
 
           <div className={styles.formGroup}>
-            <label htmlFor="event-organiser-name">Event Organiser Name:</label>
-            <input
-              type="text"
-              id="event-organiser-name"
-              value={formData['event-organiser-name']}
-              onChange={(e) => handleInputChange('event-organiser-name', e.target.value)}
-              className={styles.formInput}
-            />
-          </div>
-
-          <div className={styles.formGroup}>
-            <label htmlFor="date-and-time">Date and Time:</label>
+            <label htmlFor="date-and-time">Date and Time: <span style={{color: 'red'}}>*</span></label>
             <input
               type="datetime-local"
               id="date-and-time"
               value={formData['date-and-time']}
               onChange={(e) => handleInputChange('date-and-time', e.target.value)}
               className={styles.formInput}
+              required
             />
           </div>
 
           <div className={styles.formGroup}>
-            <label htmlFor="address">Address:</label>
+            <label htmlFor="address">Address: <span style={{color: 'red'}}>*</span></label>
             <input
               type="text"
               id="address"
               value={formData.address}
               onChange={(e) => handleInputChange('address', e.target.value)}
               className={styles.formInput}
+              required
             />
           </div>
 
           <div className={styles.formGroup}>
-            <label htmlFor="location">Location:</label>
+            <label htmlFor="location">Location: <span style={{color: 'red'}}>*</span></label>
             <select
               id="location"
               value={formData.location}
               onChange={(e) => handleInputChange('location', e.target.value)}
               className={styles.formInput}
               style={{ cursor: 'pointer' }}
+              required
             >
               <option value="">Select a location...</option>
               {locations.map((loc: any) => (
@@ -353,9 +345,9 @@ export default function EditItemModal({ item, isOpen, onClose, onSave }: EditIte
               alignItems: 'center',
               gap: '0.5rem',
               padding: '0.75rem',
-              background: 'rgba(255, 107, 53, 0.05)',
+              background: 'rgba(110, 86, 207, 0.05)',
               borderRadius: '8px',
-              border: '1px solid rgba(255, 107, 53, 0.15)'
+              border: '1px solid rgba(110, 86, 207, 0.15)'
             }}>
               <span style={{ fontSize: '1.1rem' }}>🔒</span>
               <span>The organiser is automatically set when the event is created and cannot be modified</span>
@@ -365,12 +357,11 @@ export default function EditItemModal({ item, isOpen, onClose, onSave }: EditIte
           <ImageUpload
             currentImageUrl={formData.thumbnail}
             onImageUploaded={(imageData) => handleInputChange('thumbnail', imageData as any)}
-            onFileSelected={(file) => {
-              console.log('📁 File selected for thumbnail:', file?.name || 'none');
-              setPendingImageFile(file);
-            }}
+                onFileSelected={(file) => {
+                  setPendingImageFile(file);
+                }}
             uploadOnSelect={false}
-            label="Thumbnail Image"
+            label="Thumbnail Image *"
           />
 
           <div className={styles.formGroup}>
@@ -385,21 +376,8 @@ export default function EditItemModal({ item, isOpen, onClose, onSave }: EditIte
           </div>
 
           <div className={styles.formGroup}>
-            <label htmlFor="order">Order (for sorting):</label>
-            <input
-              type="number"
-              id="order"
-              value={formData.order}
-              onChange={(e) => handleInputChange('order', e.target.value)}
-              className={styles.formInput}
-              min="0"
-              step="1"
-            />
-          </div>
-
-          <div className={styles.formGroup}>
             <MultiSelectBadge
-              label="Event Communities"
+              label="Communities *"
               options={communities.map((c: any) => ({
                 id: c.id,
                 name: c.fieldData?.name || c.name || c.slug || c.id
@@ -407,12 +385,13 @@ export default function EditItemModal({ item, isOpen, onClose, onSave }: EditIte
               selectedIds={Array.isArray(formData['event-community']) ? formData['event-community'] : []}
               onChange={(selectedIds) => handleInputChange('event-community', selectedIds as any)}
               placeholder="Click to add communities..."
+              maxSelections={2}
             />
           </div>
 
           <div className={styles.formGroup}>
             <MultiSelectBadge
-              label="Categories"
+              label="Categories *"
               options={categories.map((c: any) => ({
                 id: c.id,
                 name: c.fieldData?.name || c.name || c.slug || c.id
@@ -420,20 +399,8 @@ export default function EditItemModal({ item, isOpen, onClose, onSave }: EditIte
               selectedIds={Array.isArray(formData['places-2']) ? formData['places-2'] : []}
               onChange={(selectedIds) => handleInputChange('places-2', selectedIds as any)}
               placeholder="Click to add categories..."
+              maxSelections={2}
             />
-          </div>
-
-          <div className={styles.formGroup}>
-            <label htmlFor="featured-image" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-              <input
-                type="checkbox"
-                id="featured-image"
-                checked={formData['featured-image']}
-                onChange={(e) => handleSwitchChange('featured-image', e.target.checked)}
-                style={{ width: '18px', height: '18px', cursor: 'pointer' }}
-              />
-              <span>Featured Event</span>
-            </label>
           </div>
 
           <div className={styles.formGroup} style={{ border: '2px solid #f59e42', borderRadius: 8, padding: 12, background: '#fffbe6', marginBottom: 24 }}>

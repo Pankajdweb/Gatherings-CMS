@@ -20,11 +20,9 @@ export default function Navbar() {
         {/* Navigation Links */}
         <div className={styles.navLinks}>
           <Link href="/" className={styles.navLink}>
-            <span className={styles.navIcon}>📊</span>
             My Events
           </Link>
           <Link href="/addevents" className={styles.navLink}>
-            <span className={styles.navIcon}>➕</span>
             Add Event
           </Link>
         </div>

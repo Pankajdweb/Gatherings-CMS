@@ -22,8 +22,8 @@
 }
 
 .dropZone:hover {
-  border-color: var(--accent-orange);
-  background: rgba(255, 107, 53, 0.05);
+  border-color: #6E56CF;
+  background: rgba(110, 86, 207, 0.05);
   transform: translateY(-2px);
 }
 
@@ -107,14 +107,14 @@
 }
 
 .changeButton {
-  background: linear-gradient(135deg, #FF6B35 0%, #f59e42 100%);
+  background: linear-gradient(135deg, #6E56CF 0%, #8b73e0 100%);
   color: white;
-  box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
+  box-shadow: 0 2px 8px rgba(110, 86, 207, 0.3);
 }
 
 .changeButton:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4);
+  box-shadow: 0 4px 12px rgba(110, 86, 207, 0.4);
 }
 
 .removeButton {
@@ -158,9 +158,9 @@
   align-items: center;
   gap: 0.75rem;
   padding: 0.75rem 1rem;
-  background: rgba(255, 107, 53, 0.1);
+  background: rgba(110, 86, 207, 0.1);
   border-radius: 8px;
-  border: 1px solid rgba(255, 107, 53, 0.2);
+  border: 1px solid rgba(110, 86, 207, 0.2);
   color: var(--text-primary);
   font-size: 0.9rem;
   font-weight: 500;

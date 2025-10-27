@@ -13,9 +13,6 @@ export async function POST(request: Request) {
       );
     }
     
-    console.log('=== Creating New Item ===');
-    console.log('Thumbnail data:', body.fieldData?.thumbnail);
-    
     // Prepare the request body for Webflow API
     const webflowBody: any = {
       fieldData: body.fieldData,
@@ -36,7 +33,6 @@ export async function POST(request: Request) {
 
     if (!response.ok) {
       const errorData = await response.text();
-      console.error('Webflow API error:', errorData);
       
       return NextResponse.json(
         { 
@@ -48,10 +44,8 @@ export async function POST(request: Request) {
     }
 
     const newItem = await response.json();
-    console.log('✅ Item created successfully:', newItem.id);
     return NextResponse.json(newItem);
   } catch (error) {
-    console.error('Error creating item:', error);
     return NextResponse.json(
       { 
         error: 'Failed to create collection item',
