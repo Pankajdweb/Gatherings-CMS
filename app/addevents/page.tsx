@@ -419,12 +419,16 @@ export default function AddItemPage() {
                     }))
                   }
                   className={styles.dataInput}
-                  style={{ cursor: 'pointer' }}
+                  style={{ 
+                    cursor: 'pointer',
+                    fontWeight: '500',
+                    color: formData.locationReference ? '#ffffff' : '#a0a3bd'
+                  }}
                   required
                 >
-                  <option value="">Select a location...</option>
+                  <option value="" style={{ background: '#211f2e', color: '#a0a3bd' }}>Select a location...</option>
                   {locations.map((loc: any) => (
-                    <option key={loc.id} value={loc.id}>
+                    <option key={loc.id} value={loc.id} style={{ background: '#211f2e', color: '#ffffff' }}>
                       {loc.fieldData?.name || loc.name || loc.slug || loc.id}
                     </option>
                   ))}

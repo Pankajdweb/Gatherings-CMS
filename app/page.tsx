@@ -258,26 +258,31 @@ export default function Home() {
       <main className={styles.main}>
         <div className={styles.apiData}>
           <div style={{ 
-            textAlign: 'center', 
             marginBottom: '2rem',
             paddingTop: '1rem',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center'
+            paddingBottom: '1.5rem',
+            borderBottom: '2px solid rgba(110, 86, 207, 0.3)'
           }}>
             <h4 style={{ 
-              fontSize: '2rem', 
+              fontSize: '2.25rem', 
               fontWeight: '700',
-              margin: '0 0 0.5rem 0'
+              margin: '0 0 0.75rem 0',
+              color: '#ffffff',
+              textAlign: 'center'
             }}>
               My Events
             </h4>
             <p style={{ 
-              color: '#9ca3af', 
+              color: '#a0a3bd', 
               fontSize: '1rem', 
-              margin: 0 
+              margin: 0,
+              background: 'rgba(110, 86, 207, 0.1)',
+              padding: '0.75rem 1.5rem',
+              borderRadius: '8px',
+              width: '100%',
+              textAlign: 'center'
             }}>
-              Showing all events you've created (Draft, Published, and Archived)
+              📊 Showing all events you've created (Draft, Published, and Archived)
             </p>
           </div>
           <div className={styles.items}>
@@ -288,7 +293,13 @@ export default function Home() {
                 onClick={() => handleItemClick(item)}
                 style={{ cursor: "pointer" }}
               >
-                <h6>
+                <h6 style={{ 
+                  color: '#ffffff', 
+                  fontSize: '1.35rem',
+                  marginBottom: '1rem',
+                  borderBottom: '2px solid rgba(110, 86, 207, 0.3)',
+                  paddingBottom: '0.75rem'
+                }}>
                   {item.fieldData?.name ||
                     item.name ||
                     item.displayName ||
@@ -297,28 +308,36 @@ export default function Home() {
 
                 {/* Description */}
                 {item.fieldData?.description && (
-                  <p><strong>Description:</strong> {item.fieldData.description}</p>
+                  <p style={{ color: '#d1d5db', lineHeight: '1.6' }}>
+                    <strong style={{ color: '#ffffff' }}>Description:</strong> {item.fieldData.description}
+                  </p>
                 )}
 
                 {/* Club Name */}
                 {item.fieldData?.['club-name'] && (
-                  <p><strong>Club:</strong> {item.fieldData['club-name']}</p>
+                  <p style={{ color: '#d1d5db' }}>
+                    <strong style={{ color: '#ffffff' }}>Club:</strong> {item.fieldData['club-name']}
+                  </p>
                 )}
 
                 {/* Date and Time */}
                 {item.fieldData?.['date-and-time'] && (
-                  <p><strong>📅 Date:</strong> {new Date(item.fieldData['date-and-time']).toLocaleString()}</p>
+                  <p style={{ color: '#d1d5db' }}>
+                    <strong style={{ color: '#ffffff' }}>📅 Date:</strong> {new Date(item.fieldData['date-and-time']).toLocaleString()}
+                  </p>
                 )}
 
                 {/* Address */}
                 {item.fieldData?.address && (
-                  <p><strong>📍 Address:</strong> {item.fieldData.address}</p>
+                  <p style={{ color: '#d1d5db' }}>
+                    <strong style={{ color: '#ffffff' }}>📍 Address:</strong> {item.fieldData.address}
+                  </p>
                 )}
 
                 {/* Badges */}
                 <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.5rem' }}>
                   {item.fieldData?.thumbnail && (
-                    <span className={styles.statusBadge} style={{ background: '#e0e7ff', color: '#3730a3' }}>
+                    <span className={styles.statusBadge} style={{ background: 'rgba(110, 86, 207, 0.2)', color: '#b89eff', border: '1px solid rgba(110, 86, 207, 0.4)' }}>
                       🖼️ Has Thumbnail
                     </span>
                   )}
@@ -326,71 +345,75 @@ export default function Home() {
 
                 {/* Ticket Link */}
                 {item.fieldData?.['ticket-link'] && (
-                  <p><strong>🎟️ Tickets:</strong> <a href={item.fieldData['ticket-link']} target="_blank" rel="noopener noreferrer" style={{ color: '#3b82f6' }}>Get Tickets</a></p>
+                  <p><strong>🎟️ Tickets:</strong> <a href={item.fieldData['ticket-link']} target="_blank" rel="noopener noreferrer" style={{ color: '#6E56CF', fontWeight: '600', textDecoration: 'underline' }}>Get Tickets</a></p>
                 )}
 
                 {/* Archive Status */}
                 {typeof item.isArchived !== 'undefined' && (
                   <p className={styles.readyStatus}>
-                    Archived:
+                    <strong>Archive Status:</strong>
                     <span
-                      className={`${styles.statusBadge} ${
-                        item.isArchived
-                          ? styles.published
-                          : styles.draft
-                      }`}
+                      className={styles.statusBadge}
+                      style={{
+                        background: item.isArchived ? 'rgba(239, 68, 68, 0.2)' : 'rgba(34, 197, 94, 0.2)',
+                        color: item.isArchived ? '#fca5a5' : '#86efac',
+                        border: `1px solid ${item.isArchived ? 'rgba(239, 68, 68, 0.4)' : 'rgba(34, 197, 94, 0.4)'}`
+                      }}
                     >
-                      {item.isArchived ? "Yes" : "No"}
+                      {item.isArchived ? "📦 Archived" : "✅ Live"}
                     </span>
                   </p>
                 )}
 
                 {typeof item.isDraft !== 'undefined' && (
                   <p className={styles.readyStatus}>
-                    Draft:
+                    <strong>Status:</strong>
                     <span
-                      className={`${styles.statusBadge} ${
-                        item.isDraft
-                          ? styles.draft
-                          : styles.published
-                      }`}
+                      className={styles.statusBadge}
+                      style={{
+                        background: item.isDraft ? 'rgba(251, 191, 36, 0.2)' : 'rgba(110, 86, 207, 0.2)',
+                        color: item.isDraft ? '#fbbf24' : '#b89eff',
+                        border: `1px solid ${item.isDraft ? 'rgba(251, 191, 36, 0.4)' : 'rgba(110, 86, 207, 0.4)'}`
+                      }}
                     >
-                      {item.isDraft ? "Yes" : "No"}
+                      {item.isDraft ? "📝 Draft" : "🚀 Published"}
                     </span>
                   </p>
                 )}
 
                 {/* Timestamps */}
-                {item.lastPublished && (
-                  <div className={styles.dateBadgeContainer}>
-                    <span className={`${styles.dateBadge} ${styles.published}`}>
-                      📅 Published
-                    </span>
-                    <span className={styles.relativeTime}>
-                      {getRelativeTime(item.lastPublished)}
-                    </span>
-                  </div>
-                )}
-                {item.lastUpdated && (
-                  <div className={styles.dateBadgeContainer}>
-                    <span className={`${styles.dateBadge} ${styles.updated}`}>
-                      🔄 Updated
-                    </span>
-                    <span className={styles.relativeTime}>
-                      {getRelativeTime(item.lastUpdated)}
-                    </span>
-                  </div>
-                )}
-                {item.createdOn && (
-                  <div className={styles.dateBadgeContainer}>
-                    <span className={`${styles.dateBadge} ${styles.created}`}>
-                      ✨ Created
-                    </span>
-                    <span className={styles.relativeTime}>
-                      {getRelativeTime(item.createdOn)}
-                    </span>
-                  </div>
-                )}
+                <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                  {item.lastPublished && (
+                    <div className={styles.dateBadgeContainer}>
+                      <span className={styles.dateBadge} style={{ background: 'rgba(110, 86, 207, 0.8)', color: 'white' }}>
+                        📅 Published
+                      </span>
+                      <span className={styles.relativeTime} style={{ color: '#a0a3bd' }}>
+                        {getRelativeTime(item.lastPublished)}
+                      </span>
+                    </div>
+                  )}
+                  {item.lastUpdated && (
+                    <div className={styles.dateBadgeContainer}>
+                      <span className={styles.dateBadge} style={{ background: 'rgba(110, 86, 207, 0.6)', color: 'white' }}>
+                        🔄 Updated
+                      </span>
+                      <span className={styles.relativeTime} style={{ color: '#a0a3bd' }}>
+                        {getRelativeTime(item.lastUpdated)}
+                      </span>
+                    </div>
+                  )}
+                  {item.createdOn && (
+                    <div className={styles.dateBadgeContainer}>
+                      <span className={styles.dateBadge} style={{ background: 'rgba(110, 86, 207, 0.4)', color: 'white' }}>
+                        ✨ Created
+                      </span>
+                      <span className={styles.relativeTime} style={{ color: '#a0a3bd' }}>
+                        {getRelativeTime(item.createdOn)}
+                      </span>
+                    </div>
+                  )}
+                </div>
               </div>
             ))}
           </div>
