@@ -131,7 +131,6 @@ export async function POST() {
     });
 
   } catch (error) {
-    console.error('Error syncing user:', error);
     return NextResponse.json(
       { 
         success: false, 
