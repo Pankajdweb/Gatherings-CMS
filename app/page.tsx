@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { UserButton } from "@clerk/nextjs";
 import EditItemModal from "./components/EditItemModal";
+import { ADMIN_USER_IDS } from "../config";
 
 // Helper function to fetch collection items
 async function getCollectionItems() {
@@ -90,6 +91,8 @@ export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [currentUserWebflowId, setCurrentUserWebflowId] = useState<string | null>(null);
+  const [currentUserClerkId, setCurrentUserClerkId] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -101,11 +104,19 @@ export default function Home() {
         });
         
         let userWebflowId = null;
+        let userClerkId = null;
         
         if (userResponse.ok) {
           const userData = await userResponse.json();
           userWebflowId = userData.webflowUserId;
+          userClerkId = userData.clerkUserId;
           setCurrentUserWebflowId(userWebflowId);
+          setCurrentUserClerkId(userClerkId);
+          
+          // Check if user is an admin
+          if (userClerkId && ADMIN_USER_IDS.includes(userClerkId)) {
+            setIsAdmin(true);
+          }
         }
 
         const result = await getCollectionItems();
@@ -136,6 +147,13 @@ export default function Home() {
           const userData = await userResponse.json();
           if (userData.webflowUserId) {
             setCurrentUserWebflowId(userData.webflowUserId);
+          }
+          if (userData.clerkUserId) {
+            setCurrentUserClerkId(userData.clerkUserId);
+            // Check if user is an admin
+            if (ADMIN_USER_IDS.includes(userData.clerkUserId)) {
+              setIsAdmin(true);
+            }
           }
         }
       } catch (error) {
@@ -248,10 +266,12 @@ export default function Home() {
     );
   }
 
-  // Filter events to show only current user's events
-  const userEvents = data?.items?.filter((item: any) => 
-    item.fieldData?.['organiser-name'] === currentUserWebflowId
-  ) || [];
+  // Filter events - admins see all events, regular users see only their events
+  const userEvents = isAdmin 
+    ? (data?.items || [])
+    : (data?.items?.filter((item: any) => 
+        item.fieldData?.['organiser-name'] === currentUserWebflowId
+      ) || []);
 
   return (
     <div className={styles.page}>
@@ -270,19 +290,22 @@ export default function Home() {
               color: '#ffffff',
               textAlign: 'center'
             }}>
-              My Events
+              {isAdmin ? '🔑 Admin View - All Events' : 'My Events'}
             </h4>
             <p style={{ 
               color: '#a0a3bd', 
               fontSize: '1rem', 
               margin: 0,
-              background: 'rgba(110, 86, 207, 0.1)',
+              background: isAdmin ? 'rgba(239, 68, 68, 0.2)' : 'rgba(110, 86, 207, 0.1)',
               padding: '0.75rem 1.5rem',
               borderRadius: '8px',
               width: '100%',
-              textAlign: 'center'
+              textAlign: 'center',
+              border: isAdmin ? '1px solid rgba(239, 68, 68, 0.4)' : 'none'
             }}>
-              📊 Showing all events you've created (Draft, Published, and Archived)
+              {isAdmin 
+                ? '👑 Admin Access: Viewing all events from all users (Draft, Published, and Archived)' 
+                : '📊 Showing all events you\'ve created (Draft, Published, and Archived)'}
             </p>
           </div>
           <div className={styles.items}>
@@ -489,6 +512,7 @@ export default function Home() {
               setSelectedItem(null);
             }}
             onSave={handleSave}
+            isAdmin={isAdmin}
           />
         )}
 

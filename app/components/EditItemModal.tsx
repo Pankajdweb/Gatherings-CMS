@@ -10,9 +10,10 @@ interface EditItemModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (updatedItem: any) => void;
+  isAdmin?: boolean;
 }
 
-export default function EditItemModal({ item, isOpen, onClose, onSave }: EditItemModalProps) {
+export default function EditItemModal({ item, isOpen, onClose, onSave, isAdmin = false }: EditItemModalProps) {
   // Helper function to convert date format for HTML datetime-local input
   const formatDateForInput = (dateString: string) => {
     if (!dateString) return '';
@@ -407,58 +408,61 @@ export default function EditItemModal({ item, isOpen, onClose, onSave }: EditIte
             />
           </div>
 
-          <div className={styles.formGroup} style={{ border: '2px solid #f59e42', borderRadius: 8, padding: 12, background: '#fffbe6', marginBottom: 24 }}>
-            <label htmlFor="isArchived" className={styles.switchLabel} style={{ fontWeight: 'bold', color: !formData.isArchived ? '#14a68e' : '#b45309', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <svg width="20" height="20" fill={!formData.isArchived ? '#14a68e' : '#f59e42'} viewBox="0 0 20 20"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zm.75 11.25a.75.75 0 01-1.5 0v-1.5a.75.75 0 011.5 0v1.5zm0-4.5a.75.75 0 01-1.5 0V7a.75.75 0 011.5 0v1.75z"/></svg>
-                {!formData.isArchived ? 'Live (Switch off to archive this item)' : 'Archived (Switch on to make it live)'}
-              </span>
-              <div className={styles.switchContainer}>
-                <input
-                  type="checkbox"
-                  id="isArchived"
-                  checked={!formData.isArchived}
-                  onChange={(e) => handleSwitchChange('isArchived', !e.target.checked)}
-                  className={styles.switchInput}
-                  disabled={isLoading}
-                />
-                <label htmlFor="isArchived" className={styles.switchToggle}>
-                  <span className={styles.switchSlider}></span>
-                </label>
+          {isAdmin && (
+            <div className={styles.formGroup} style={{ border: '2px solid #f59e42', borderRadius: 8, padding: 12, background: '#fffbe6', marginBottom: 24 }}>
+              <label htmlFor="isArchived" className={styles.switchLabel} style={{ fontWeight: 'bold', color: !formData.isArchived ? '#14a68e' : '#b45309', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <svg width="20" height="20" fill={!formData.isArchived ? '#14a68e' : '#f59e42'} viewBox="0 0 20 20"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zm.75 11.25a.75.75 0 01-1.5 0v-1.5a.75.75 0 011.5 0v1.5zm0-4.5a.75.75 0 01-1.5 0V7a.75.75 0 011.5 0v1.75z"/></svg>
+                  {!formData.isArchived ? 'Live (Switch off to archive this item)' : 'Archived (Switch on to make it live)'}
+                </span>
+                <div className={styles.switchContainer}>
+                  <input
+                    type="checkbox"
+                    id="isArchived"
+                    checked={!formData.isArchived}
+                    onChange={(e) => handleSwitchChange('isArchived', !e.target.checked)}
+                    className={styles.switchInput}
+                    disabled={isLoading}
+                  />
+                  <label htmlFor="isArchived" className={styles.switchToggle}>
+                    <span className={styles.switchSlider}></span>
+                  </label>
+                </div>
+              </label>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', marginTop: 8 }}>
+                <span style={{
+                  fontWeight: 600,
+                  color: !formData.isArchived ? '#14a68e' : '#f59e42',
+                  background: !formData.isArchived ? '#e6f9f4' : '#fff7ed',
+                  borderRadius: 6,
+                  padding: '2px 12px',
+                  fontSize: '0.95rem',
+                  letterSpacing: 1,
+                  minWidth: 48,
+                  textAlign: 'center',
+                  boxShadow: '0 1px 4px rgba(0,0,0,0.04)'
+                }}>
+                  {!formData.isArchived ? 'ON (Live)' : 'OFF (Archived)'}
+                </span>
               </div>
-            </label>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', marginTop: 8 }}>
-              <span style={{
-                fontWeight: 600,
-                color: !formData.isArchived ? '#14a68e' : '#f59e42',
-                background: !formData.isArchived ? '#e6f9f4' : '#fff7ed',
-                borderRadius: 6,
-                padding: '2px 12px',
-                fontSize: '0.95rem',
-                letterSpacing: 1,
-                minWidth: 48,
-                textAlign: 'center',
-                boxShadow: '0 1px 4px rgba(0,0,0,0.04)'
-              }}>
-                {!formData.isArchived ? 'ON (Live)' : 'OFF (Archived)'}
-              </span>
+              <div style={{ color: !formData.isArchived ? '#14a68e' : '#b45309', fontSize: '0.9rem', marginTop: 6 }}>
+                {!formData.isArchived
+                  ? <span><strong>Active:</strong> This item is <b>live</b> and visible in all lists.</span>
+                  : <span><strong>Note:</strong> If toggled off, this item will be <b>archived</b> and hidden from live lists.</span>
+                }
+              </div>
             </div>
-            <div style={{ color: !formData.isArchived ? '#14a68e' : '#b45309', fontSize: '0.9rem', marginTop: 6 }}>
-              {!formData.isArchived
-                ? <span><strong>Active:</strong> This item is <b>live</b> and visible in all lists.</span>
-                : <span><strong>Note:</strong> If toggled off, this item will be <b>archived</b> and hidden from live lists.</span>
-              }
-            </div>
-          </div>
+          )}
 
         </div>
         
         <div className={styles.modalFooter}>
-          <div className={styles.modalFooterrow}>
-            <div className={styles.formGroup} style={{ marginBottom: 16, border: '2px solid #e5e7eb', borderRadius: 8, padding: 16, background: '#f9fafb' }}>
-              <label style={{ fontWeight: 'bold', marginBottom: 12, display: 'block', color: '#374151' }}>
-                Update Mode:
-              </label>
+          {isAdmin && (
+            <div className={styles.modalFooterrow}>
+              <div className={styles.formGroup} style={{ marginBottom: 16, border: '2px solid #e5e7eb', borderRadius: 8, padding: 16, background: '#f9fafb' }}>
+                <label style={{ fontWeight: 'bold', marginBottom: 12, display: 'block', color: '#374151' }}>
+                  Update Mode:
+                </label>
               <div style={{ display: 'flex', gap: 12 }}>
                 <label 
                   style={{ 
@@ -493,39 +497,41 @@ export default function EditItemModal({ item, isOpen, onClose, onSave }: EditIte
                     🔄 Staging
                   </span>
                 </label>
-                <label 
-                  style={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    gap: 8, 
-                    cursor: 'pointer',
-                    padding: '12px 16px',
-                    borderRadius: '8px',
-                    border: `2px solid ${updateMode === 'live' ? '#dc2626' : '#e5e7eb'}`,
-                    background: updateMode === 'live' ? '#fef2f2' : '#ffffff',
-                    transition: 'all 0.2s ease',
-                    minWidth: '180px',
-                    justifyContent: 'center'
-                  }}
-                  onClick={() => setUpdateMode('live')}
-                >
-                  <input
-                    type="radio"
-                    name="updateMode"
-                    value="live"
-                    checked={updateMode === 'live'}
-                    onChange={(e) => setUpdateMode(e.target.value as 'staging' | 'live')}
+                {isAdmin && (
+                  <label 
                     style={{ 
-                      margin: 0,
-                      width: '18px',
-                      height: '18px',
-                      accentColor: '#dc2626'
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: 8, 
+                      cursor: 'pointer',
+                      padding: '12px 16px',
+                      borderRadius: '8px',
+                      border: `2px solid ${updateMode === 'live' ? '#dc2626' : '#e5e7eb'}`,
+                      background: updateMode === 'live' ? '#fef2f2' : '#ffffff',
+                      transition: 'all 0.2s ease',
+                      minWidth: '180px',
+                      justifyContent: 'center'
                     }}
-                  />
-                  <span style={{ fontWeight: 600, color: updateMode === 'live' ? '#dc2626' : '#6b7280' }}>
-                    🚀 Live
-                  </span>
-                </label>
+                    onClick={() => setUpdateMode('live')}
+                  >
+                    <input
+                      type="radio"
+                      name="updateMode"
+                      value="live"
+                      checked={updateMode === 'live'}
+                      onChange={(e) => setUpdateMode(e.target.value as 'staging' | 'live')}
+                      style={{ 
+                        margin: 0,
+                        width: '18px',
+                        height: '18px',
+                        accentColor: '#dc2626'
+                      }}
+                    />
+                    <span style={{ fontWeight: 600, color: updateMode === 'live' ? '#dc2626' : '#6b7280' }}>
+                      🚀 Live
+                    </span>
+                  </label>
+                )}
               </div>
               <div style={{ marginTop: 12, fontSize: '0.9rem', color: '#6b7280', padding: '8px 12px', background: '#ffffff', borderRadius: '6px', border: '1px solid #e5e7eb' }}>
                 {updateMode === 'staging' 
@@ -535,6 +541,7 @@ export default function EditItemModal({ item, isOpen, onClose, onSave }: EditIte
               </div>
             </div>
           </div>
+          )}
           <div className={styles.modalFooterrow}>
           <button onClick={onClose} className={styles.cancelButton}>
           Cancel
@@ -544,7 +551,7 @@ export default function EditItemModal({ item, isOpen, onClose, onSave }: EditIte
              className={styles.saveButton}
             disabled={isLoading}
           >
-            {isLoading ? 'Saving...' : `Save Changes (${updateMode === 'staging' ? 'Staging' : 'Live'})`}
+            {isLoading ? 'Saving...' : isAdmin ? `Save Changes (${updateMode === 'staging' ? 'Staging' : 'Live'})` : 'Save Changes'}
           </button>
           </div>
         </div>

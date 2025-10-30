@@ -13,4 +13,10 @@ export const SITE_ID = process.env.NEXT_PUBLIC_SITE_ID || '6865ac77d1a4f0d42c02c
 // Image hosting configuration - ImgBB
 // Get your free API key at https://api.imgbb.com/
 // IMPORTANT: Set this as an environment variable in production!
-export const IMGBB_API_KEY = process.env.IMGBB_API_KEY || 'df2bb71915b7c58cbcbdc8e00a41d668'; 
+export const IMGBB_API_KEY = process.env.IMGBB_API_KEY || 'df2bb71915b7c58cbcbdc8e00a41d668';
+
+// Admin users who can see all events
+export const ADMIN_USER_IDS = [
+  'user_34gbOHbiTfKAgm98PfIysju75cy',
+  'user_34DgwDGugSKwUmS7Bgg3hEQMZeJ'
+]; 
