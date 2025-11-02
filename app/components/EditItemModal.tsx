@@ -174,7 +174,7 @@ export default function EditItemModal({ item, isOpen, onClose, onSave, isAdmin =
         body: JSON.stringify({
           isArchived: formData.isArchived,
           fieldData: fieldDataWithoutIsArchived,
-          updateMode: updateMode
+          updateMode: isAdmin ? updateMode : 'staging' // Non-admins always use staging
         }),
       });
 

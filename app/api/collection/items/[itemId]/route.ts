@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { AUTH_TOKEN, COLLECTION_ID } from '../../../../../config';
+import { auth } from '@clerk/nextjs/server';
+import { AUTH_TOKEN, COLLECTION_ID, ADMIN_USER_IDS } from '../../../../../config';
 
 interface RouteParams {
   params: Promise<{
@@ -15,15 +16,25 @@ export async function PATCH(
     const resolvedParams = await params;
     const body = await request.json();
     
+    // Check if user is admin
+    const { userId } = await auth();
+    const isAdmin = userId && ADMIN_USER_IDS.includes(userId);
+    
+    // Determine isDraft status:
+    // - Regular users: Always keep as draft (isDraft: true)
+    // - Admin with 'live' mode: Publish (isDraft: false)
+    // - Admin with 'staging' mode: Keep as draft (isDraft: true)
+    const updateMode = body.updateMode || 'staging'; // Default to staging for safety
+    const shouldPublish = isAdmin && updateMode === 'live';
+    
     // Prepare the request body for Webflow API
     const webflowBody: any = {
       fieldData: body.fieldData,
       isArchived: typeof body.isArchived === 'boolean' ? body.isArchived : false,
-      isDraft: false
+      isDraft: !shouldPublish // true = draft, false = published
     };
 
     // Use staging or live endpoint based on updateMode
-    const updateMode = body.updateMode || 'live';
     const endpoint = updateMode === 'staging' 
       ? `https://api.webflow.com/v2/collections/${COLLECTION_ID}/items/${resolvedParams.itemId}`
       : `https://api.webflow.com/v2/collections/${COLLECTION_ID}/items/${resolvedParams.itemId}/live`;

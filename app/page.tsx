@@ -304,8 +304,8 @@ export default function Home() {
               border: isAdmin ? '1px solid rgba(239, 68, 68, 0.4)' : 'none'
             }}>
               {isAdmin 
-                ? '👑 Admin Access: Viewing all events from all users (Draft, Published, and Archived)' 
-                : '📊 Showing all events you\'ve created (Draft, Published, and Archived)'}
+                ? '👑 Admin Access: Viewing all events from all users (Pending Approval, Approved, and Offline)' 
+                : '📊 Showing all events you\'ve created (Pending Approval, Approved, and Offline)'}
             </p>
           </div>
           <div className={styles.items}>
@@ -371,23 +371,7 @@ export default function Home() {
                   <p><strong>🎟️ Tickets:</strong> <a href={item.fieldData['ticket-link']} target="_blank" rel="noopener noreferrer" style={{ color: '#6E56CF', fontWeight: '600', textDecoration: 'underline' }}>Get Tickets</a></p>
                 )}
 
-                {/* Archive Status */}
-                {typeof item.isArchived !== 'undefined' && (
-                  <p className={styles.readyStatus}>
-                    <strong>Archive Status:</strong>
-                    <span
-                      className={styles.statusBadge}
-                      style={{
-                        background: item.isArchived ? 'rgba(239, 68, 68, 0.2)' : 'rgba(34, 197, 94, 0.2)',
-                        color: item.isArchived ? '#fca5a5' : '#86efac',
-                        border: `1px solid ${item.isArchived ? 'rgba(239, 68, 68, 0.4)' : 'rgba(34, 197, 94, 0.4)'}`
-                      }}
-                    >
-                      {item.isArchived ? "📦 Archived" : "✅ Live"}
-                    </span>
-                  </p>
-                )}
-
+           
                 {typeof item.isDraft !== 'undefined' && (
                   <p className={styles.readyStatus}>
                     <strong>Status:</strong>
@@ -399,17 +383,37 @@ export default function Home() {
                         border: `1px solid ${item.isDraft ? 'rgba(251, 191, 36, 0.4)' : 'rgba(110, 86, 207, 0.4)'}`
                       }}
                     >
-                      {item.isDraft ? "📝 Draft" : "🚀 Published"}
+                      {item.isDraft ? "⏳ Pending for Approval" : "✅ Approved"}
                     </span>
                   </p>
                 )}
+
+
+
+                     {/* Archive Status */}
+                     {typeof item.isArchived !== 'undefined' && (
+                  <p className={styles.readyStatus}>
+                    <strong>Visibility:</strong>
+                    <span
+                      className={styles.statusBadge}
+                      style={{
+                        background: item.isArchived ? 'rgba(239, 68, 68, 0.2)' : 'rgba(34, 197, 94, 0.2)',
+                        color: item.isArchived ? '#fca5a5' : '#86efac',
+                        border: `1px solid ${item.isArchived ? 'rgba(239, 68, 68, 0.4)' : 'rgba(34, 197, 94, 0.4)'}`
+                      }}
+                    >
+                      {item.isArchived ? "🔴 Offline" : "✅ Live"}
+                    </span>
+                  </p>
+                )}
+
 
                 {/* Timestamps */}
                 <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
                   {item.lastPublished && (
                     <div className={styles.dateBadgeContainer}>
                       <span className={styles.dateBadge} style={{ background: 'rgba(110, 86, 207, 0.8)', color: 'white' }}>
-                        📅 Published
+                        📅 Approved
                       </span>
                       <span className={styles.relativeTime} style={{ color: '#a0a3bd' }}>
                         {getRelativeTime(item.lastPublished)}
