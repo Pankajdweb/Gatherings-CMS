@@ -8,9 +8,12 @@
     "start": "next start",
     "lint": "next lint"
   },
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "dependencies": {
     "@clerk/nextjs": "^6.33.7",
-    "next": "15.3.3",
+    "next": "^15.5.9",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "svix": "^1.77.0"

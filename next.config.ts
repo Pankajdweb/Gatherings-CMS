@@ -5,7 +5,16 @@ const nextConfig: NextConfig = {
   
   // Image optimization for Webflow images
   images: {
-    domains: ['uploads-ssl.webflow.com', 'assets.website-files.com'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'uploads-ssl.webflow.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'assets.website-files.com',
+      },
+    ],
     unoptimized: false,
   },
 };
