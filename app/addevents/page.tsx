@@ -249,7 +249,7 @@ export default function AddItemPage() {
                 color: 'var(--text-primary)',
                 margin: 0
               }}>
-                Event Information
+                Event - Information
               </h2>
               <button
                 onClick={handleClearData}
