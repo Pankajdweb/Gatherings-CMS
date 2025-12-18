@@ -30,9 +30,12 @@ export async function GET() {
     const collectionData = await collectionResponse.json();
     const itemsData = await itemsResponse.json();
 
+    // Filter out archived and draft items
+    const activeItems = (itemsData.items || []).filter((item: any) => !item.isArchived && !item.isDraft);
+
     return NextResponse.json({
       collection: collectionData,
-      items: itemsData.items || []
+      items: activeItems
     });
   } catch (error) {
     return NextResponse.json(

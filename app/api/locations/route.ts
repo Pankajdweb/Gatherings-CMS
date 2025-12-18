@@ -17,7 +17,9 @@ export async function GET() {
     }
 
     const data = await response.json();
-    return NextResponse.json({ items: data.items || [] });
+    // Filter out archived and draft items
+    const activeItems = (data.items || []).filter((item: any) => !item.isArchived && !item.isDraft);
+    return NextResponse.json({ items: activeItems });
   } catch (error) {
     return NextResponse.json(
       { error: 'Failed to fetch locations' },
