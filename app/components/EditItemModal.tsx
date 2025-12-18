@@ -382,7 +382,7 @@ export default function EditItemModal({ item, isOpen, onClose, onSave, isAdmin =
 
           <div className={styles.formGroup}>
             <MultiSelectBadge
-              label="Communities *"
+              label="Communities*"
               options={communities.map((c: any) => ({
                 id: c.id,
                 name: c.fieldData?.name || c.name || c.slug || c.id

@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { AUTH_TOKEN, COLLECTION_ID } from '../../../config';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const collectionResponse = await fetch(`https://api.webflow.com/v2/collections/${COLLECTION_ID}`, {

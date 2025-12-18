@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { AUTH_TOKEN, CATEGORY_COLLECTION_ID } from '../../../config';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     // Fetch category items from Webflow

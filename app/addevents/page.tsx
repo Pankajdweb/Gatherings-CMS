@@ -45,50 +45,75 @@ export default function AddItemPage() {
   const [currentUserInfo, setCurrentUserInfo] = useState<any>(null);
 
  
+  const [fetchErrors, setFetchErrors] = useState<string[]>([]);
+
   useEffect(() => {
     const fetchData = async () => {
+      // Fetch collection structure
       try {
-        // Fetch collection structure
         const collectionResponse = await fetch(`/api/collection`);
         if (collectionResponse.ok) {
           const data = await collectionResponse.json();
           setCollectionFields(data.collection?.fields || []);
+        } else {
+          setFetchErrors(prev => [...prev, 'Failed to load collection structure']);
         }
+      } catch (e) {
+        setFetchErrors(prev => [...prev, 'Error loading collection']);
+      }
 
-        // Fetch categories
+      // Fetch categories
+      try {
         const categoriesResponse = await fetch(`/api/categories`);
         if (categoriesResponse.ok) {
           const categoriesData = await categoriesResponse.json();
           setCategories(categoriesData.items || []);
+        } else {
+          setFetchErrors(prev => [...prev, 'Failed to load categories']);
         }
+      } catch (e) {
+        setFetchErrors(prev => [...prev, 'Error loading categories']);
+      }
 
-        // Fetch communities
+      // Fetch communities
+      try {
         const communitiesResponse = await fetch(`/api/communities`);
         if (communitiesResponse.ok) {
           const communitiesData = await communitiesResponse.json();
           setCommunities(communitiesData.items || []);
+        } else {
+          setFetchErrors(prev => [...prev, 'Failed to load communities']);
         }
+      } catch (e) {
+        setFetchErrors(prev => [...prev, 'Error loading communities']);
+      }
 
-        // Fetch locations
+      // Fetch locations
+      try {
         const locationsResponse = await fetch(`/api/locations`);
         if (locationsResponse.ok) {
           const locationsData = await locationsResponse.json();
           setLocations(locationsData.items || []);
+        } else {
+          setFetchErrors(prev => [...prev, 'Failed to load locations']);
         }
+      } catch (e) {
+        setFetchErrors(prev => [...prev, 'Error loading locations']);
+      }
 
-        // Fetch current user's Webflow ID
+      // Fetch current user's Webflow ID
+      try {
         const userResponse = await fetch(`/api/current-user-webflow`);
         if (userResponse.ok) {
           const userData = await userResponse.json();
           setCurrentUserInfo(userData);
-          // Auto-fill the organiser field with current user's Webflow ID
           setFormData((prev) => ({
             ...prev,
             organiserNameReference: userData.webflowUserId,
           }));
         }
-      } catch (error) {
-        // Silently fail
+      } catch (e) {
+        console.error("Error fetching user info:", e);
       }
     };
 
@@ -241,6 +266,27 @@ export default function AddItemPage() {
     <div className={styles.page}>
       <main className={styles.main}>
         <div className={styles.scraperContainer}>
+          {fetchErrors.length > 0 && (
+            <div style={{ 
+              background: 'rgba(255, 0, 0, 0.1)', 
+              border: '1px solid #ff4d4f', 
+              borderRadius: '8px', 
+              padding: '1rem', 
+              margin: '1rem',
+              color: '#ff4d4f',
+              width: 'calc(100% - 2rem)'
+            }}>
+              <p style={{ fontWeight: 'bold', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span style={{ fontSize: '1.2rem' }}>⚠️</span> Data Loading Issues
+              </p>
+              <ul style={{ margin: 0, paddingLeft: '1.5rem', fontSize: '0.9rem' }}>
+                {fetchErrors.map((err, i) => <li key={i}>{err}</li>)}
+              </ul>
+              <p style={{ fontSize: '0.8rem', marginTop: '0.75rem', color: '#ffa39e', opacity: 0.8 }}>
+                Check Netlify environment variables: <code>NEXT_PUBLIC_AUTH_TOKEN</code>, <code>NEXT_PUBLIC_COMMUNITY_COLLECTION_ID</code>, etc.
+              </p>
+            </div>
+          )}
           <div className={styles.scrapedDataSection}>
             <div className={styles.sectionHeader}>
               <h2 style={{ 

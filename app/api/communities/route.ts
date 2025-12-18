@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { AUTH_TOKEN, COMMUNITY_COLLECTION_ID } from '../../../config';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const response = await fetch(`https://api.webflow.com/v2/collections/${COMMUNITY_COLLECTION_ID}/items`, {
