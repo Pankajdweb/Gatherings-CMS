@@ -17,6 +17,6 @@ export const IMGBB_API_KEY = process.env.IMGBB_API_KEY || 'df2bb71915b7c58cbcbdc
 
 // Admin users who can see all events
 export const ADMIN_USER_IDS = [
-  'user_34gbOHbiTfKAgm98PfIysju75cy',
-  'user_34DgwDGugSKwUmS7Bgg3hEQMZeJ'
+  'user_352SbEnHwsh9qNpNDT8J76OVIPy',
+  'user_36i0tywHXsmn9YuWZYS6BxRGMd3'
 ]; 
