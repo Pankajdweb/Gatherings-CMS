@@ -20,8 +20,9 @@ export async function POST(request: Request) {
       isDraft: true
     };
 
-    // Use the /items/live endpoint to create live items directly
-    const response = await fetch(`https://api.webflow.com/v2/collections/${COLLECTION_ID}/items/live`, {
+    // Use the regular /items endpoint to create items (supports drafts)
+    // This ensures items are accessible via the /items GET endpoint
+    const response = await fetch(`https://api.webflow.com/v2/collections/${COLLECTION_ID}/items`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${AUTH_TOKEN}`,

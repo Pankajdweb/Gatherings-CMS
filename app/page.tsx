@@ -131,6 +131,7 @@ export default function Home() {
     fetchData();
   }, []);
 
+
   useEffect(() => {
     const syncUser = async () => {
       try {
@@ -266,12 +267,32 @@ export default function Home() {
     );
   }
 
-  // Filter events - admins see all events, regular users see only their events
+  // Filter events - admins see ALL events from ALL users (including drafts/archived)
+  // Regular users see only their own events (including drafts/archived)
   const userEvents = isAdmin 
-    ? (data?.items || [])
-    : (data?.items?.filter((item: any) => 
-        item.fieldData?.['organiser-name'] === currentUserWebflowId
-      ) || []);
+    ? (data?.items || [])  // Admins see everything - no filtering
+    : (data?.items?.filter((item: any) => {
+        if (!currentUserWebflowId) {
+          // If user ID not loaded yet, don't show any events (prevents showing wrong events)
+          return false;
+        }
+        
+        const organiserField = item.fieldData?.['organiser-name'];
+        
+        // Handle reference field (can be array or string depending on Webflow version)
+        if (Array.isArray(organiserField)) {
+          // Reference field stored as array of IDs
+          return organiserField.includes(currentUserWebflowId);
+        } else if (typeof organiserField === 'string') {
+          // Some versions might store as string
+          return organiserField === currentUserWebflowId;
+        } else if (organiserField === null || organiserField === undefined) {
+          // No organiser set - don't show
+          return false;
+        }
+        
+        return false;
+      }) || []);
 
   return (
     <div className={styles.page}>

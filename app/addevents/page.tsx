@@ -186,7 +186,8 @@ export default function AddItemPage() {
         fieldData.location = formData.locationReference;
       }
       if (formData.organiserNameReference) {
-        fieldData["organiser-name"] = formData.organiserNameReference;
+        // Webflow reference fields should be arrays, even for single references
+        fieldData["organiser-name"] = [formData.organiserNameReference];
       }
       if (formData.eventCommunityReferences.length > 0) {
         fieldData["event-community"] = formData.eventCommunityReferences;

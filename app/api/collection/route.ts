@@ -12,6 +12,8 @@ export async function GET() {
       }
     });
 
+    // Fetch all items - Webflow API v2 /items endpoint should return all accessible items
+    // including drafts and archived items
     const itemsResponse = await fetch(`https://api.webflow.com/v2/collections/${COLLECTION_ID}/items`, {
       headers: {
         'Authorization': `Bearer ${AUTH_TOKEN}`,
@@ -30,12 +32,11 @@ export async function GET() {
     const collectionData = await collectionResponse.json();
     const itemsData = await itemsResponse.json();
 
-    // Filter out archived and draft items
-    const activeItems = (itemsData.items || []).filter((item: any) => !item.isArchived && !item.isDraft);
-
+    // Return all items (including archived and draft) so users and admins can see all events
+    // The /items endpoint should return all items the API key has access to
     return NextResponse.json({
       collection: collectionData,
-      items: activeItems
+      items: itemsData.items || []
     });
   } catch (error) {
     return NextResponse.json(
