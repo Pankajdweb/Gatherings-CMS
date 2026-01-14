@@ -131,6 +131,7 @@ export default function AddItemPage() {
     if (!formData.description) requiredFields.push("Description");
     if (!formData.clubName) requiredFields.push("Club Name");
     if (!formData.dateAndTime) requiredFields.push("Date and Time");
+    if (!formData.timezone) requiredFields.push("Timezone");
     if (!formData.address) requiredFields.push("Address");
     if (!formData.thumbnail && !pendingImageFile) requiredFields.push("Thumbnail Image");
     if (!formData.locationReference) requiredFields.push("Location");
@@ -411,7 +412,7 @@ export default function AddItemPage() {
               </div>
 
               <div className={styles.dataField}>
-                <label>Timezone:</label>
+                <label>Timezone: <span style={{color: 'red'}}>*</span></label>
                 <select
                   value={formData.timezone}
                   onChange={(e) =>
@@ -426,6 +427,7 @@ export default function AddItemPage() {
                     fontWeight: '500',
                     color: formData.timezone ? '#ffffff' : '#a0a3bd'
                   }}
+                  required
                 >
                   <option value="" style={{ background: '#211f2e', color: '#a0a3bd' }}>Select timezone...</option>
                   {collectionFields && (() => {
@@ -497,7 +499,7 @@ export default function AddItemPage() {
               />
 
               <div className={styles.dataField}>
-                <label>Ticket Link:</label>
+                <label>Ticket or website link:</label>
                 <input
                   type="url"
                   value={formData.ticketLink}
@@ -510,6 +512,15 @@ export default function AddItemPage() {
                   className={styles.dataInput}
                   placeholder="Enter ticket purchase link..."
                 />
+                <p style={{ 
+                  fontSize: '0.875rem', 
+                  color: '#9ca3af', 
+                  marginTop: '0.5rem',
+                  marginBottom: 0,
+                  fontStyle: 'italic'
+                }}>
+                  If left blank, it will display "Free or tickets at the door."
+                </p>
               </div>
 
               <div className={styles.dataField}>

@@ -289,7 +289,7 @@ export default function EditItemModal({ item, isOpen, onClose, onSave, isAdmin =
           </div>
 
           <div className={styles.formGroup}>
-            <label htmlFor="timezone">Timezone:</label>
+            <label htmlFor="timezone">Timezone: <span style={{color: 'red'}}>*</span></label>
             <select
               id="timezone"
               value={formData.timezone}
@@ -300,6 +300,7 @@ export default function EditItemModal({ item, isOpen, onClose, onSave, isAdmin =
                 fontWeight: '500',
                 color: formData.timezone ? '#ffffff' : '#a0a3bd'
               }}
+              required
             >
               <option value="" style={{ background: '#211f2e', color: '#a0a3bd' }}>Select timezone...</option>
               {collectionFields && (() => {
@@ -428,7 +429,7 @@ export default function EditItemModal({ item, isOpen, onClose, onSave, isAdmin =
           />
 
           <div className={styles.formGroup}>
-            <label htmlFor="ticket-link">Ticket Link:</label>
+            <label htmlFor="ticket-link">Ticket or website link:</label>
             <input
               type="url"
               id="ticket-link"
@@ -436,6 +437,15 @@ export default function EditItemModal({ item, isOpen, onClose, onSave, isAdmin =
               onChange={(e) => handleInputChange('ticket-link', e.target.value)}
               className={styles.formInput}
             />
+            <p style={{ 
+              fontSize: '0.875rem', 
+              color: '#9ca3af', 
+              marginTop: '0.5rem',
+              marginBottom: 0,
+              fontStyle: 'italic'
+            }}>
+              If left blank, it will display "Free or tickets at the door."
+            </p>
           </div>
 
           <div className={styles.formGroup}>
