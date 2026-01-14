@@ -47,6 +47,7 @@ export default function EditItemModal({ item, isOpen, onClose, onSave, isAdmin =
     address: item?.fieldData?.address || '',
     thumbnail: item?.fieldData?.thumbnail || '',  // Can be object {fileId, url, alt} or string
     'ticket-link': item?.fieldData?.['ticket-link'] || '',
+    timezone: item?.fieldData?.timezone || '',
     isArchived: typeof item?.isArchived === 'boolean' ? item.isArchived : false,
     location: item?.fieldData?.location || '',
     'organiser-name': item?.fieldData?.['organiser-name'] || '',
@@ -58,13 +59,21 @@ export default function EditItemModal({ item, isOpen, onClose, onSave, isAdmin =
   const [communities, setCommunities] = useState<any[]>([]);
   const [locations, setLocations] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
+  const [collectionFields, setCollectionFields] = useState<any>(null);
   const [updateMode, setUpdateMode] = useState<'staging' | 'live'>('staging');
   const [pendingImageFile, setPendingImageFile] = useState<File | null>(null);
 
   useEffect(() => {
-    // Fetch categories, communities, locations, and users
+    // Fetch categories, communities, locations, users, and collection fields
     async function fetchData() {
       try {
+        // Fetch collection structure for timezone options
+        const collectionResponse = await fetch('/api/collection');
+        if (collectionResponse.ok) {
+          const collectionData = await collectionResponse.json();
+          setCollectionFields(collectionData.collection?.fields || []);
+        }
+
         // Fetch categories
         const categoriesResponse = await fetch('/api/categories');
         if (categoriesResponse.ok) {
@@ -277,6 +286,55 @@ export default function EditItemModal({ item, isOpen, onClose, onSave, isAdmin =
               className={styles.formInput}
               required
             />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label htmlFor="timezone">Timezone:</label>
+            <select
+              id="timezone"
+              value={formData.timezone}
+              onChange={(e) => handleInputChange('timezone', e.target.value)}
+              className={styles.formInput}
+              style={{ 
+                cursor: 'pointer',
+                fontWeight: '500',
+                color: formData.timezone ? '#ffffff' : '#a0a3bd'
+              }}
+            >
+              <option value="" style={{ background: '#211f2e', color: '#a0a3bd' }}>Select timezone...</option>
+              {collectionFields && (() => {
+                // Find the timezone field in collection fields
+                const timezoneField = collectionFields.find((field: any) => 
+                  field.slug === 'timezone' || field.slug === 'Timezone' || 
+                  field.name === 'Timezone' || field.name === 'timezone' ||
+                  (field.type === 'Option' && (field.slug?.toLowerCase().includes('timezone') || field.name?.toLowerCase().includes('timezone')))
+                );
+                // Extract options from the field - handle different Webflow API structures
+                let timezoneOptions: any[] = [];
+                if (timezoneField) {
+                  if (Array.isArray(timezoneField.options)) {
+                    timezoneOptions = timezoneField.options;
+                  } else if (timezoneField.validations?.options) {
+                    timezoneOptions = timezoneField.validations.options;
+                  } else if (timezoneField.validations?.choices) {
+                    timezoneOptions = timezoneField.validations.choices;
+                  }
+                }
+                return timezoneOptions.map((option: any, index: number) => {
+                  const optionValue = option.id || option.value || option.name || option;
+                  const optionLabel = option.name || option.label || option.value || option.id || option;
+                  return (
+                    <option 
+                      key={option.id || option.value || option.name || index} 
+                      value={optionValue}
+                      style={{ background: '#211f2e', color: '#ffffff' }}
+                    >
+                      {optionLabel}
+                    </option>
+                  );
+                });
+              })()}
+            </select>
           </div>
 
           <div className={styles.formGroup}>

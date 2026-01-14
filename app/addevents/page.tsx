@@ -21,6 +21,7 @@ export default function AddItemPage() {
     address: string;
     thumbnail: string | { fileId: string; url: string; alt?: string };
     ticketLink: string;
+    timezone: string;
     locationReference: string;
     organiserNameReference: string;
     eventCommunityReferences: string[];
@@ -33,6 +34,7 @@ export default function AddItemPage() {
     address: "",
     thumbnail: "",
     ticketLink: "",
+    timezone: "",
     locationReference: "",
     organiserNameReference: "", 
     eventCommunityReferences: [] as string[],
@@ -179,6 +181,7 @@ export default function AddItemPage() {
         address: formData.address || "",
         thumbnail: thumbnailData || "",
         "ticket-link": formData.ticketLink || "",
+        timezone: formData.timezone || "",
       };
 
       // Add references if provided
@@ -249,6 +252,7 @@ export default function AddItemPage() {
       address: "",
       thumbnail: "",
       ticketLink: "",
+      timezone: "",
       locationReference: "",
       organiserNameReference: currentUserInfo?.webflowUserId || "", // Keep current user
       eventCommunityReferences: [] as string[],
@@ -404,6 +408,59 @@ export default function AddItemPage() {
                   className={styles.dataInput}
                   required
                 />
+              </div>
+
+              <div className={styles.dataField}>
+                <label>Timezone:</label>
+                <select
+                  value={formData.timezone}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      timezone: e.target.value,
+                    }))
+                  }
+                  className={styles.dataInput}
+                  style={{ 
+                    cursor: 'pointer',
+                    fontWeight: '500',
+                    color: formData.timezone ? '#ffffff' : '#a0a3bd'
+                  }}
+                >
+                  <option value="" style={{ background: '#211f2e', color: '#a0a3bd' }}>Select timezone...</option>
+                  {collectionFields && (() => {
+                    // Find the timezone field in collection fields
+                    const timezoneField = collectionFields.find((field: any) => 
+                      field.slug === 'timezone' || field.slug === 'Timezone' || 
+                      field.name === 'Timezone' || field.name === 'timezone' ||
+                      (field.type === 'Option' && (field.slug?.toLowerCase().includes('timezone') || field.name?.toLowerCase().includes('timezone')))
+                    );
+                    // Extract options from the field - handle different Webflow API structures
+                    let timezoneOptions: any[] = [];
+                    if (timezoneField) {
+                      if (Array.isArray(timezoneField.options)) {
+                        timezoneOptions = timezoneField.options;
+                      } else if (timezoneField.validations?.options) {
+                        timezoneOptions = timezoneField.validations.options;
+                      } else if (timezoneField.validations?.choices) {
+                        timezoneOptions = timezoneField.validations.choices;
+                      }
+                    }
+                    return timezoneOptions.map((option: any, index: number) => {
+                      const optionValue = option.id || option.value || option.name || option;
+                      const optionLabel = option.name || option.label || option.value || option.id || option;
+                      return (
+                        <option 
+                          key={option.id || option.value || option.name || index} 
+                          value={optionValue}
+                          style={{ background: '#211f2e', color: '#ffffff' }}
+                        >
+                          {optionLabel}
+                        </option>
+                      );
+                    });
+                  })()}
+                </select>
               </div>
 
               <div className={styles.dataField}>
