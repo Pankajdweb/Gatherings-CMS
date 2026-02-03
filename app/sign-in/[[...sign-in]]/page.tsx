@@ -16,7 +16,7 @@ export default function SignInPage() {
           }}
         >
           <img
-            src="https://cdn.prod.website-files.com/6865ac77d1a4f0d42c02ccbf/68e2eb07b8c19c27b99aba3e_Asset%203.png"
+            src="https://cdn.prod.website-files.com/6865ac77d1a4f0d42c02ccbf/69747608ec059323a70420b9_Dark%20Background.png"
             alt="Gatherings CMS"
             style={{
              maxWidth: "300px",
