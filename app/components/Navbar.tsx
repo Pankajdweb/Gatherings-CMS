@@ -11,7 +11,7 @@ export default function Navbar() {
         {/* Logo Section */}
         <Link href="/" className={styles.logoLink}>
           <img 
-            src="https://cdn.prod.website-files.com/6865ac77d1a4f0d42c02ccbf/68e2eb07b8c19c27b99aba3e_Asset%203.png" 
+            src="/Dark Background.png" 
             alt="Gatherings Logo" 
             className={styles.logo}
           />
@@ -42,4 +42,5 @@ export default function Navbar() {
     </nav>
   );
 }
+
 
