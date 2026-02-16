@@ -1,11 +1,32 @@
 import { NextResponse } from 'next/server';
+import { auth, currentUser } from '@clerk/nextjs/server';
 import { AUTH_TOKEN, COLLECTION_ID } from '../../../../config';
 
 export async function POST(request: Request) {
   try {
+    const { userId } = await auth();
+    
+    if (!userId) {
+      return NextResponse.json(
+        { error: 'Unauthorized - Please sign in' },
+        { status: 401 }
+      );
+    }
+
+    const user = await currentUser();
+    
+    const organizerName = user?.firstName && user?.lastName 
+      ? `${user.firstName} ${user.lastName}`.trim()
+      : user?.firstName || user?.username || user?.emailAddresses?.[0]?.emailAddress || 'Unknown Organizer';
+
+    console.log('Creating event for user:', {
+      userId: user?.id,
+      organizerName: organizerName,
+      email: user?.emailAddresses?.[0]?.emailAddress
+    });
+
     const body = await request.json();
     
-    // Validate required fields
     if (!body.fieldData) {
       return NextResponse.json(
         { error: 'fieldData is required' },
@@ -13,15 +34,20 @@ export async function POST(request: Request) {
       );
     }
     
-    // Prepare the request body for Webflow API
     const webflowBody: any = {
-      fieldData: body.fieldData,
+      fieldData: {
+        ...body.fieldData,
+        'event-organiser-name': organizerName,
+      },
       isArchived: true,
       isDraft: true
     };
 
-    // Use the regular /items endpoint to create items (supports drafts)
-    // This ensures items are accessible via the /items GET endpoint
+    console.log('Sending to Webflow:', {
+      eventName: webflowBody.fieldData.name,
+      organizerName: webflowBody.fieldData['event-organiser-name']
+    });
+
     const response = await fetch(`https://api.webflow.com/v2/collections/${COLLECTION_ID}/items`, {
       method: 'POST',
       headers: {
@@ -45,8 +71,11 @@ export async function POST(request: Request) {
     }
 
     const newItem = await response.json();
+    console.log('Event created successfully:', newItem.id);
+    
     return NextResponse.json(newItem);
   } catch (error) {
+    console.error('Error creating item:', error);
     return NextResponse.json(
       { 
         error: 'Failed to create collection item',
@@ -55,4 +84,4 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
-} 
+}
