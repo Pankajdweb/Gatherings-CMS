@@ -15,9 +15,12 @@ export async function POST(request: Request) {
 
     const user = await currentUser();
     
-    const organizerName = user?.firstName && user?.lastName 
-      ? `${user.firstName} ${user.lastName}`.trim()
-      : user?.firstName || user?.username || user?.emailAddresses?.[0]?.emailAddress || 'Unknown Organizer';
+const displayName = user?.unsafeMetadata?.displayName as string | undefined;
+
+const organizerName = displayName || 
+  (user?.firstName && user?.lastName 
+    ? `${user.firstName} ${user.lastName}`.trim()
+    : user?.firstName || user?.username || user?.emailAddresses?.[0]?.emailAddress || 'Unknown Organizer');
 
     console.log('Creating event for user:', {
       userId: user?.id,
@@ -85,3 +88,4 @@ export async function POST(request: Request) {
     );
   }
 }
+
