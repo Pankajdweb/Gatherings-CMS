@@ -1,23 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useUser } from '@clerk/nextjs';
-import { useRouter } from 'next/navigation';
 
 export default function OnboardingPage() {
-  const { user, isLoaded } = useUser();
-  const router = useRouter();
+  const { user } = useUser();
   const [displayName, setDisplayName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
-
-  // If onboarding is already complete, redirect to home
-  useEffect(() => {
-    if (isLoaded && user?.unsafeMetadata?.onboardingComplete === true) {
-      console.log('Onboarding already complete, redirecting...');
-      router.push('/');
-    }
-  }, [isLoaded, user, router]);
+  const [success, setSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,8 +29,8 @@ export default function OnboardingPage() {
         }
       });
 
-      // Immediate redirect after successful update
-      router.push('/');
+      setSuccess(true);
+      setError('✅ Saved! You can now close this page and go to the home page.');
     } catch (err) {
       console.error('Error:', err);
       setError('Failed to save display name. Please try again.');
@@ -47,9 +38,48 @@ export default function OnboardingPage() {
     }
   };
 
-  // Don't render the form if already complete
-  if (user?.unsafeMetadata?.onboardingComplete === true) {
-    return null;
+  if (success) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: '#1a1625',
+        padding: '2rem'
+      }}>
+        <div style={{
+          background: 'white',
+          borderRadius: '16px',
+          padding: '3rem',
+          maxWidth: '500px',
+          width: '100%',
+          textAlign: 'center'
+        }}>
+          <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>✅</div>
+          <h1 style={{ fontSize: '2rem', marginBottom: '1rem', color: '#1a1625' }}>
+            Profile Complete!
+          </h1>
+          <p style={{ color: '#6b7280', marginBottom: '2rem' }}>
+            Your display name has been saved.
+          </p>
+          <a 
+            href="/"
+            style={{
+              display: 'inline-block',
+              padding: '1rem 2rem',
+              background: 'linear-gradient(135deg, #6E56CF 0%, #8b73e0 100%)',
+              color: 'white',
+              textDecoration: 'none',
+              borderRadius: '8px',
+              fontWeight: '600'
+            }}
+          >
+            Go to Home
+          </a>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -124,8 +154,7 @@ export default function OnboardingPage() {
               marginTop: '0.5rem',
               lineHeight: '1.4'
             }}>
-              💡 This can be your personal name, organization name, or promoter name. 
-              It will be visible on all events you create.
+              💡 This can be your personal name, organization name, or promoter name.
             </p>
           </div>
 
@@ -154,8 +183,7 @@ export default function OnboardingPage() {
               borderRadius: '8px',
               fontSize: '1rem',
               fontWeight: '600',
-              cursor: isSubmitting ? 'not-allowed' : 'pointer',
-              transition: 'all 0.2s'
+              cursor: isSubmitting ? 'not-allowed' : 'pointer'
             }}
           >
             {isSubmitting ? 'Saving...' : 'Continue'}
