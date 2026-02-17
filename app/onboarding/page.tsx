@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useUser } from '@clerk/nextjs';
 
 export default function OnboardingPage() {
@@ -8,6 +8,15 @@ export default function OnboardingPage() {
   const [displayName, setDisplayName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [debugInfo, setDebugInfo] = useState('');
+
+  // Check current metadata on load
+  useEffect(() => {
+    if (user) {
+      console.log('Current user metadata:', user.unsafeMetadata);
+      setDebugInfo(`Current onboarding status: ${user.unsafeMetadata?.onboardingComplete ? 'Complete' : 'Incomplete'}`);
+    }
+  }, [user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,23 +28,38 @@ export default function OnboardingPage() {
 
     setIsSubmitting(true);
     setError('');
+    setDebugInfo('Starting update...');
 
     try {
-      await user?.update({
+      console.log('Updating user metadata...');
+      
+      const updateResult = await user?.update({
         unsafeMetadata: {
           displayName: displayName.trim(),
           onboardingComplete: true,
         }
       });
+      
+      console.log('Update result:', updateResult);
+      console.log('Updated metadata:', updateResult?.unsafeMetadata);
+      
+      setDebugInfo('Update successful! Reloading session...');
+      
+      // Force reload the user session
+      await user?.reload();
+      
+      console.log('After reload:', user?.unsafeMetadata);
+      setDebugInfo('Session reloaded. Redirecting in 3 seconds...');
+      
+      // Wait 3 seconds so we can see the debug info
+      await new Promise(resolve => setTimeout(resolve, 3000));
 
-      // Set a flag in localStorage to bypass middleware check
-      localStorage.setItem('onboarding_completed', 'true');
-
-      // Immediate redirect
+      // Direct navigation
       window.location.href = '/';
     } catch (err) {
-      console.error('Onboarding error:', err);
-      setError('Failed to save display name. Please try again.');
+      console.error('Full error:', err);
+      setError(`Failed to save: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      setDebugInfo(`Error: ${err instanceof Error ? err.message : 'Unknown error'}`);
       setIsSubmitting(false);
     }
   };
@@ -73,6 +97,20 @@ export default function OnboardingPage() {
         }}>
           Choose a display name that will appear on your event listings.
         </p>
+
+        {debugInfo && (
+          <div style={{
+            padding: '0.75rem',
+            background: '#e0f2fe',
+            color: '#0369a1',
+            borderRadius: '8px',
+            marginBottom: '1rem',
+            fontSize: '0.875rem',
+            fontFamily: 'monospace'
+          }}>
+            {debugInfo}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit}>
           <div style={{ marginBottom: '1.5rem' }}>
@@ -147,6 +185,17 @@ export default function OnboardingPage() {
             {isSubmitting ? 'Saving...' : 'Continue'}
           </button>
         </form>
+
+        <div style={{
+          marginTop: '1rem',
+          padding: '0.75rem',
+          background: '#f3f4f6',
+          borderRadius: '8px',
+          fontSize: '0.75rem',
+          color: '#6b7280'
+        }}>
+          Debug: Open browser console (F12) to see detailed logs
+        </div>
       </div>
     </div>
   );
