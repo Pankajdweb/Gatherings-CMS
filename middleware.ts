@@ -21,18 +21,15 @@ export default clerkMiddleware(async (auth, request) => {
     return NextResponse.redirect(signInUrl);
   }
 
-  const metadata = (sessionClaims as any)?.unsafeMetadata || {};
-  const hasCompletedOnboarding = metadata.onboardingComplete === true;
-
-  // Skip redirect if already on onboarding page (prevent loop)
+  // Skip onboarding check - we'll handle it on the client side
   if (isOnboardingRoute(request)) {
-    if (hasCompletedOnboarding) {
-      return NextResponse.redirect(new URL('/', request.url));
-    }
     return NextResponse.next();
   }
 
-  // Redirect to onboarding if not complete
+  const metadata = (sessionClaims as any)?.unsafeMetadata || {};
+  const hasCompletedOnboarding = metadata.onboardingComplete === true;
+
+  // Only redirect to onboarding if definitely not completed
   if (!hasCompletedOnboarding) {
     return NextResponse.redirect(new URL('/onboarding', request.url));
   }
