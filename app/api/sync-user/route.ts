@@ -29,13 +29,48 @@ export async function POST() {
 
     if (checkResponse.ok) {
       const existingData = await checkResponse.json();
-      // Check if user with this clerk-user-id already exists
       const existingUser = existingData.items?.find(
         (item: any) => item.fieldData?.['clerk-user-id'] === userId
       );
       
       if (existingUser) {
-        console.log('User already synced to Webflow:', existingUser.id);
+        // User exists - update with display name if available
+        const displayName = (user.unsafeMetadata?.displayName as string) || 
+                          `${user.firstName || ''} ${user.lastName || ''}`.trim() ||
+                          user.emailAddresses[0]?.emailAddress ||
+                          'User';
+
+        const updateData = {
+          fieldData: {
+            name: displayName,
+            'display-name': displayName
+          }
+        };
+
+        const updateResponse = await fetch(
+          `https://api.webflow.com/v2/collections/${USER_COLLECTION_ID}/items/${existingUser.id}`,
+          {
+            method: 'PATCH',
+            headers: {
+              'Authorization': `Bearer ${AUTH_TOKEN}`,
+              'accept-version': '2.0.0',
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(updateData),
+          }
+        );
+
+        if (updateResponse.ok) {
+          const updated = await updateResponse.json();
+          return NextResponse.json({ 
+            success: true, 
+            message: 'User updated',
+            alreadyExists: true,
+            webflowUserId: existingUser.id,
+            displayName: displayName
+          });
+        }
+
         return NextResponse.json({ 
           success: true, 
           message: 'User already synced',
@@ -45,7 +80,7 @@ export async function POST() {
       }
     }
 
-    // Create user in Webflow
+    // Create new user in Webflow
     const primaryEmail = user.emailAddresses.find(
       (email) => email.id === user.primaryEmailAddressId
     );
@@ -54,22 +89,25 @@ export async function POST() {
       (phone) => phone.id === user.primaryPhoneNumberId
     );
 
-    const userName = `${user.firstName || ''} ${user.lastName || ''}`.trim() || 
-                    primaryEmail?.emailAddress || 'User';
+    const displayName = (user.unsafeMetadata?.displayName as string) || 
+                       `${user.firstName || ''} ${user.lastName || ''}`.trim() ||
+                       primaryEmail?.emailAddress ||
+                       'User';
+    
     const userSlug = `user-${userId}`.toLowerCase().replace(/[^a-z0-9-]/g, '-');
 
     const webflowData: any = {
-      isDraft: false, // Publish immediately instead of saving as draft
+      isDraft: false,
       fieldData: {
-        name: userName,
+        name: displayName,
         slug: userSlug,
         email: primaryEmail?.emailAddress || '',
         'clerk-user-id': userId,
         'profile-image': user.imageUrl || '',
+        'display-name': displayName
       }
     };
 
-    // Add phone if available
     if (primaryPhone?.phoneNumber) {
       webflowData.fieldData['phone'] = primaryPhone.phoneNumber;
     }
@@ -96,38 +134,12 @@ export async function POST() {
     const result = await response.json();
     console.log('User successfully synced to Webflow:', result.id);
     
-    // Publish the user immediately to make it live
-    try {
-      const publishResponse = await fetch(
-        `https://api.webflow.com/v2/collections/${USER_COLLECTION_ID}/items/publish`,
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${AUTH_TOKEN}`,
-            'accept-version': '2.0.0',
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            itemIds: [result.id]
-          }),
-        }
-      );
-      
-      if (publishResponse.ok) {
-        console.log('✅ User published to live site:', result.id);
-      } else {
-        const publishError = await publishResponse.text();
-        console.warn('⚠️ Could not publish user (may already be live):', publishError);
-      }
-    } catch (publishError) {
-      console.warn('⚠️ Publish step failed (user created but may need manual publish):', publishError);
-    }
-
     return NextResponse.json({ 
       success: true, 
       message: 'User synced to Webflow',
       data: result,
-      webflowUserId: result.id
+      webflowUserId: result.id,
+      displayName: displayName
     });
 
   } catch (error) {
@@ -140,4 +152,3 @@ export async function POST() {
     );
   }
 }
-
