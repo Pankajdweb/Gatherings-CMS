@@ -1,159 +1,55 @@
-'use client';
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
+import { NextResponse } from 'next/server';
 
-import { useState } from 'react';
-import { useUser } from '@clerk/nextjs';
-import { useRouter } from 'next/navigation';
+const isPublicRoute = createRouteMatcher([
+  '/sign-in(.*)',
+  '/sign-up(.*)',
+]);
 
-export default function OnboardingPage() {
-  const { user } = useUser();
-  const router = useRouter();
-  const [displayName, setDisplayName] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState('');
+const isOnboardingRoute = createRouteMatcher(['/onboarding']);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!displayName.trim()) {
-      setError('Please enter a display name');
-      return;
+export default clerkMiddleware(async (auth, request) => {
+  const { userId, sessionClaims } = await auth();
+  
+  if (isPublicRoute(request)) {
+    return NextResponse.next();
+  }
+
+  if (!userId) {
+    const signInUrl = new URL('/sign-in', request.url);
+    signInUrl.searchParams.set('redirect_url', request.url);
+    return NextResponse.redirect(signInUrl);
+  }
+
+  const metadata = (sessionClaims as any)?.unsafeMetadata || {};
+  const hasCompletedOnboarding = metadata.onboardingComplete === true;
+
+  // Skip redirect if already on onboarding page (prevent loop)
+  if (isOnboardingRoute(request)) {
+    if (hasCompletedOnboarding) {
+      return NextResponse.redirect(new URL('/', request.url));
     }
+    return NextResponse.next();
+  }
 
-    setIsSubmitting(true);
-    setError('');
+  // Check if coming from onboarding (has a special param)
+  const url = new URL(request.url);
+  if (url.searchParams.get('from') === 'onboarding') {
+    // Allow through - user just completed onboarding
+    return NextResponse.next();
+  }
 
-    try {
-      // Update user metadata
-      await user?.update({
-        unsafeMetadata: {
-          displayName: displayName.trim(),
-          onboardingComplete: true,
-        }
-      });
+  // Redirect to onboarding if not complete
+  if (!hasCompletedOnboarding) {
+    return NextResponse.redirect(new URL('/onboarding', request.url));
+  }
 
-      // Reload the user to get fresh session
-      await user?.reload();
+  return NextResponse.next();
+});
 
-      // Small delay to ensure Clerk syncs
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // Force a full page reload with cache bypass
-      window.location.replace('/');
-    } catch (err) {
-      console.error('Onboarding error:', err);
-      setError('Failed to save display name. Please try again.');
-      setIsSubmitting(false);
-    }
-  };
-
-  return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      background: '#1a1625',
-      padding: '2rem'
-    }}>
-      <div style={{
-        background: 'white',
-        borderRadius: '16px',
-        padding: '3rem',
-        maxWidth: '500px',
-        width: '100%',
-        boxShadow: '0 4px 24px rgba(0, 0, 0, 0.1)'
-      }}>
-        <h1 style={{
-          fontSize: '2rem',
-          fontWeight: '600',
-          marginBottom: '1rem',
-          color: '#1a1625'
-        }}>
-          Complete Your Profile
-        </h1>
-        
-        <p style={{
-          color: '#6b7280',
-          marginBottom: '2rem',
-          fontSize: '1rem'
-        }}>
-          Choose a display name that will appear on your event listings.
-        </p>
-
-        <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: '1.5rem' }}>
-            <label style={{
-              display: 'block',
-              fontWeight: '600',
-              marginBottom: '0.5rem',
-              color: '#1a1625'
-            }}>
-              Display Name <span style={{ color: 'red' }}>*</span>
-            </label>
-            
-            <input
-              type="text"
-              value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
-              placeholder="e.g., NYC Events, John Smith, or Smith Promotions"
-              disabled={isSubmitting}
-              style={{
-                width: '100%',
-                padding: '0.75rem',
-                fontSize: '1rem',
-                borderRadius: '8px',
-                border: '1px solid #d1d5db',
-                outline: 'none',
-                opacity: isSubmitting ? 0.6 : 1
-              }}
-              maxLength={50}
-              required
-            />
-            
-            <p style={{
-              fontSize: '0.875rem',
-              color: '#6b7280',
-              marginTop: '0.5rem',
-              lineHeight: '1.4'
-            }}>
-              💡 This can be your personal name, organization name, or promoter name. 
-              It will be visible on all events you create.
-            </p>
-          </div>
-
-          {error && (
-            <div style={{
-              padding: '0.75rem',
-              background: '#fee2e2',
-              color: '#dc2626',
-              borderRadius: '8px',
-              marginBottom: '1rem',
-              fontSize: '0.875rem'
-            }}>
-              {error}
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            style={{
-              width: '100%',
-              padding: '1rem',
-              background: isSubmitting ? '#9ca3af' : 'linear-gradient(135deg, #6E56CF 0%, #8b73e0 100%)',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              fontSize: '1rem',
-              fontWeight: '600',
-              cursor: isSubmitting ? 'not-allowed' : 'pointer',
-              transition: 'all 0.2s'
-            }}
-          >
-            {isSubmitting ? 'Saving...' : 'Continue'}
-          </button>
-        </form>
-      </div>
-    </div>
-  );
-}
+export const config = {
+  matcher: [
+    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
+    '/(api|trpc)(.*)',
+  ],
+};
