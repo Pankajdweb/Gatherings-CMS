@@ -28,9 +28,11 @@ export default function OnboardingPage() {
         }
       });
 
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Set a flag in localStorage to bypass middleware check
+      localStorage.setItem('onboarding_completed', 'true');
 
-      window.location.href = '/?from=onboarding';
+      // Immediate redirect
+      window.location.href = '/';
     } catch (err) {
       console.error('Onboarding error:', err);
       setError('Failed to save display name. Please try again.');
