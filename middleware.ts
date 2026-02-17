@@ -21,19 +21,21 @@ export default clerkMiddleware(async (auth, request) => {
     return NextResponse.redirect(signInUrl);
   }
 
-  // Skip onboarding check - we'll handle it on the client side
+  // Always allow onboarding route
   if (isOnboardingRoute(request)) {
     return NextResponse.next();
   }
 
+  // For all other routes, check if onboarding is complete
   const metadata = (sessionClaims as any)?.unsafeMetadata || {};
   const hasCompletedOnboarding = metadata.onboardingComplete === true;
 
-  // Only redirect to onboarding if definitely not completed
+  // If onboarding not complete, redirect to onboarding
   if (!hasCompletedOnboarding) {
     return NextResponse.redirect(new URL('/onboarding', request.url));
   }
 
+  // Onboarding is complete, allow access
   return NextResponse.next();
 });
 
