@@ -33,7 +33,9 @@ export default clerkMiddleware(async (auth, request) => {
   }
 
   // Redirect to onboarding if not complete
-
+  if (!hasCompletedOnboarding) {
+    return NextResponse.redirect(new URL('/onboarding', request.url));
+  }
 
   return NextResponse.next();
 });
@@ -44,4 +46,3 @@ export const config = {
     '/(api|trpc)(.*)',
   ],
 };
-
