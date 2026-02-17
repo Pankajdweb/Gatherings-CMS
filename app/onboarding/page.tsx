@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
-import styles from '../page.module.css';
 
 export default function OnboardingPage() {
   const { user } = useUser();
@@ -24,6 +23,7 @@ export default function OnboardingPage() {
     setError('');
 
     try {
+      // Update user metadata
       await user?.update({
         unsafeMetadata: {
           displayName: displayName.trim(),
@@ -31,8 +31,13 @@ export default function OnboardingPage() {
         }
       });
 
-      router.push('/');
+      // Wait a moment for Clerk to sync
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // Force reload to update session
+      window.location.href = '/';
     } catch (err) {
+      console.error('Onboarding error:', err);
       setError('Failed to save display name. Please try again.');
       setIsSubmitting(false);
     }
@@ -88,13 +93,15 @@ export default function OnboardingPage() {
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
               placeholder="e.g., NYC Events, John Smith, or Smith Promotions"
+              disabled={isSubmitting}
               style={{
                 width: '100%',
                 padding: '0.75rem',
                 fontSize: '1rem',
                 borderRadius: '8px',
                 border: '1px solid #d1d5db',
-                outline: 'none'
+                outline: 'none',
+                opacity: isSubmitting ? 0.6 : 1
               }}
               maxLength={50}
               required
