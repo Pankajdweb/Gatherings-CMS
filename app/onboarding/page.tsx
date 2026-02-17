@@ -22,12 +22,16 @@ export default function OnboardingPage() {
     setError('');
 
     try {
+      // Update Clerk user metadata
       await user?.update({
         unsafeMetadata: {
           displayName: displayName.trim(),
           onboardingComplete: true,
         }
       });
+
+      // Sync the display name to Webflow
+      await fetch('/api/sync-user', { method: 'POST' });
 
       setSuccess(true);
       setError('✅ Saved! You can now close this page and go to the home page.');
