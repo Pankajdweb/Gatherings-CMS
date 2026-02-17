@@ -12,39 +12,39 @@ export default function OnboardingPage() {
   const [error, setError] = useState('');
 
 const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  
-  if (!displayName.trim()) {
-    setError('Please enter a display name');
-    return;
-  }
+    e.preventDefault();
+    
+    if (!displayName.trim()) {
+      setError('Please enter a display name');
+      return;
+    }
 
-  setIsSubmitting(true);
-  setError('');
+    setIsSubmitting(true);
+    setError('');
 
-  try {
-    // Update user metadata
-    await user?.update({
-      unsafeMetadata: {
-        displayName: displayName.trim(),
-        onboardingComplete: true,
-      }
-    });
+    try {
+      // Update user metadata
+      await user?.update({
+        unsafeMetadata: {
+          displayName: displayName.trim(),
+          onboardingComplete: true,
+        }
+      });
 
-    // Reload the user to get fresh session
-    await user?.reload();
+      // Reload the user to get fresh session
+      await user?.reload();
 
-    // Small delay to ensure Clerk syncs
-    await new Promise(resolve => setTimeout(resolve, 1000));
+      // Small delay to ensure Clerk syncs
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
-    // Force a full page reload with cache bypass
-    window.location.replace('/');
-  } catch (err) {
-    console.error('Onboarding error:', err);
-    setError('Failed to save display name. Please try again.');
-    setIsSubmitting(false);
-  }
-}; 
+      // Force a full page reload with cache bypass
+      window.location.replace('/');
+    } catch (err) {
+      console.error('Onboarding error:', err);
+      setError('Failed to save display name. Please try again.');
+      setIsSubmitting(false);
+    }
+  };
 
       // Wait a moment for Clerk to sync
       await new Promise(resolve => setTimeout(resolve, 500));
