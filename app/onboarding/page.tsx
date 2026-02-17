@@ -11,7 +11,7 @@ export default function OnboardingPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!displayName.trim()) {
@@ -39,18 +39,6 @@ const handleSubmit = async (e: React.FormEvent) => {
 
       // Force a full page reload with cache bypass
       window.location.replace('/');
-    } catch (err) {
-      console.error('Onboarding error:', err);
-      setError('Failed to save display name. Please try again.');
-      setIsSubmitting(false);
-    }
-  };
-
-      // Wait a moment for Clerk to sync
-      await new Promise(resolve => setTimeout(resolve, 500));
-
-      // Force reload to update session
-      window.location.href = '/';
     } catch (err) {
       console.error('Onboarding error:', err);
       setError('Failed to save display name. Please try again.');
