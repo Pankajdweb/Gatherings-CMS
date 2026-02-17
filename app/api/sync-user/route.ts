@@ -16,13 +16,23 @@ export async function POST() {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // Get display name from metadata or fall back to profile name
-    const displayName = (user.unsafeMetadata?.displayName as string) || 
-                       `${user.firstName || ''} ${user.lastName || ''}`.trim() ||
-                       user.emailAddresses[0]?.emailAddress ||
-                       'User';
+    // Get display name from metadata (this goes in the "name" field - public)
+    const displayName = (user.unsafeMetadata?.displayName as string) || '';
+    
+    // Get actual name from Clerk profile (this goes in "full-name" field - admin only)
+    const fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim() ||
+                     user.emailAddresses[0]?.emailAddress ||
+                     'User';
 
-    console.log('Syncing user with display name:', displayName);
+    // For the public "name" field, use display name if available, otherwise fall back to full name
+    const publicName = displayName || fullName;
+
+    console.log('Syncing user:', {
+      publicName,
+      fullName,
+      displayName,
+      userId
+    });
 
     // Check if user already exists in Webflow
     const checkResponse = await fetch(
@@ -42,12 +52,13 @@ export async function POST() {
       );
       
       if (existingUser) {
-        console.log('User exists, updating name field to:', displayName);
+        console.log('User exists, updating fields');
         
-        // User exists - update the name field
+        // Update: name (public/display) and full-name (admin/actual)
         const updateData = {
           fieldData: {
-            name: displayName
+            name: publicName,
+            'full-name': fullName
           }
         };
 
@@ -71,13 +82,14 @@ export async function POST() {
         }
 
         const updated = await updateResponse.json();
-        console.log('User updated successfully:', updated);
+        console.log('User updated successfully');
         
         return NextResponse.json({ 
           success: true, 
-          message: 'User updated with display name',
+          message: 'User updated',
           webflowUserId: existingUser.id,
-          displayName: displayName
+          publicName,
+          fullName
         });
       }
     }
@@ -96,7 +108,8 @@ export async function POST() {
     const webflowData: any = {
       isDraft: false,
       fieldData: {
-        name: displayName,
+        name: publicName,  // Display name (public)
+        'full-name': fullName,  // Actual name (admin)
         slug: userSlug,
         email: primaryEmail?.emailAddress || '',
         'clerk-user-id': userId,
@@ -134,7 +147,8 @@ export async function POST() {
       success: true, 
       message: 'User synced to Webflow',
       webflowUserId: result.id,
-      displayName: displayName
+      publicName,
+      fullName
     });
 
   } catch (error) {
