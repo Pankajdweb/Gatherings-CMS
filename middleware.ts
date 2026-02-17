@@ -21,14 +21,20 @@ export default clerkMiddleware(async (auth, request) => {
     return NextResponse.redirect(signInUrl);
   }
 
-  const hasCompletedOnboarding = (sessionClaims as any)?.unsafeMetadata?.onboardingComplete;
+  const metadata = (sessionClaims as any)?.unsafeMetadata || {};
+  const hasCompletedOnboarding = metadata.onboardingComplete === true;
 
-  if (!hasCompletedOnboarding && !isOnboardingRoute(request)) {
-    return NextResponse.redirect(new URL('/onboarding', request.url));
+  // Skip redirect if already on onboarding page (prevent loop)
+  if (isOnboardingRoute(request)) {
+    if (hasCompletedOnboarding) {
+      return NextResponse.redirect(new URL('/', request.url));
+    }
+    return NextResponse.next();
   }
 
-  if (hasCompletedOnboarding && isOnboardingRoute(request)) {
-    return NextResponse.redirect(new URL('/', request.url));
+  // Redirect to onboarding if not complete
+  if (!hasCompletedOnboarding) {
+    return NextResponse.redirect(new URL('/onboarding', request.url));
   }
 
   return NextResponse.next();
@@ -40,4 +46,3 @@ export const config = {
     '/(api|trpc)(.*)',
   ],
 };
-
