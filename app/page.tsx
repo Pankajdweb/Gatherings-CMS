@@ -106,8 +106,8 @@ export default function Home() {
           }
         });
         
-        let userWebflowId = null;
-        let userClerkId = null;
+        let userWebflowId: string | null = null;
+        let userClerkId: string | null = null;
         
         if (userResponse.ok) {
           const userData = await userResponse.json();
@@ -554,3 +554,4 @@ export default function Home() {
     </div>
   );
 }
+
