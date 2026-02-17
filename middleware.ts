@@ -6,10 +6,8 @@ const isPublicRoute = createRouteMatcher([
   '/sign-up(.*)',
 ]);
 
-const isOnboardingRoute = createRouteMatcher(['/onboarding']);
-
 export default clerkMiddleware(async (auth, request) => {
-  const { userId, sessionClaims } = await auth();
+  const { userId } = await auth();
   
   if (isPublicRoute(request)) {
     return NextResponse.next();
@@ -21,21 +19,6 @@ export default clerkMiddleware(async (auth, request) => {
     return NextResponse.redirect(signInUrl);
   }
 
-  // Always allow onboarding route
-  if (isOnboardingRoute(request)) {
-    return NextResponse.next();
-  }
-
-  // For all other routes, check if onboarding is complete
-  const metadata = (sessionClaims as any)?.unsafeMetadata || {};
-  const hasCompletedOnboarding = metadata.onboardingComplete === true;
-
-  // If onboarding not complete, redirect to onboarding
-  if (!hasCompletedOnboarding) {
-    return NextResponse.redirect(new URL('/onboarding', request.url));
-  }
-
-  // Onboarding is complete, allow access
   return NextResponse.next();
 });
 
