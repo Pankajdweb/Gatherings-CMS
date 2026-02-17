@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { UserButton } from "@clerk/nextjs";
 import EditItemModal from "./components/EditItemModal";
+import ProfileCompletionModal from "./components/ProfileCompletionModal";
 import { ADMIN_USER_IDS } from "../config";
 
 // Helper function to fetch collection items
@@ -93,6 +94,8 @@ export default function Home() {
   const [currentUserWebflowId, setCurrentUserWebflowId] = useState<string | null>(null);
   const [currentUserClerkId, setCurrentUserClerkId] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [needsProfileCompletion, setNeedsProfileCompletion] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -117,6 +120,21 @@ export default function Home() {
           if (userClerkId && ADMIN_USER_IDS.includes(userClerkId)) {
             setIsAdmin(true);
           }
+
+          // Check if user needs to complete profile
+          if (userWebflowId) {
+            const usersResponse = await fetch('/api/users');
+            if (usersResponse.ok) {
+              const usersData = await usersResponse.json();
+              const currentUser = usersData.items?.find((u: any) => u.id === userWebflowId);
+              
+              // Show modal if full-name is empty or missing
+              if (currentUser && !currentUser.fieldData?.['full-name']) {
+                setNeedsProfileCompletion(true);
+                setShowProfileModal(true);
+              }
+            }
+          }
         }
 
         const result = await getCollectionItems();
@@ -131,13 +149,11 @@ export default function Home() {
     fetchData();
   }, []);
 
-
   useEffect(() => {
     const syncUser = async () => {
       try {
         await fetch('/api/sync-user', { method: 'POST' });
         
-        // After syncing, fetch the user's Webflow ID again
         const userResponse = await fetch('/api/current-user-webflow', {
           headers: {
             'Content-Type': 'application/json',
@@ -151,7 +167,6 @@ export default function Home() {
           }
           if (userData.clerkUserId) {
             setCurrentUserClerkId(userData.clerkUserId);
-            // Check if user is an admin
             if (ADMIN_USER_IDS.includes(userData.clerkUserId)) {
               setIsAdmin(true);
             }
@@ -270,24 +285,19 @@ export default function Home() {
   // Filter events - admins see ALL events from ALL users (including drafts/archived)
   // Regular users see only their own events (including drafts/archived)
   const userEvents = isAdmin 
-    ? (data?.items || [])  // Admins see everything - no filtering
+    ? (data?.items || [])
     : (data?.items?.filter((item: any) => {
         if (!currentUserWebflowId) {
-          // If user ID not loaded yet, don't show any events (prevents showing wrong events)
           return false;
         }
         
         const organiserField = item.fieldData?.['organiser-name'];
         
-        // Handle reference field (can be array or string depending on Webflow version)
         if (Array.isArray(organiserField)) {
-          // Reference field stored as array of IDs
           return organiserField.includes(currentUserWebflowId);
         } else if (typeof organiserField === 'string') {
-          // Some versions might store as string
           return organiserField === currentUserWebflowId;
         } else if (organiserField === null || organiserField === undefined) {
-          // No organiser set - don't show
           return false;
         }
         
@@ -297,6 +307,18 @@ export default function Home() {
   return (
     <div className={styles.page}>
       <main className={styles.main}>
+        {/* Profile Completion Modal */}
+        {needsProfileCompletion && (
+          <ProfileCompletionModal
+            isOpen={showProfileModal}
+            onComplete={() => {
+              setShowProfileModal(false);
+              setNeedsProfileCompletion(false);
+              window.location.reload();
+            }}
+          />
+        )}
+
         <div className={styles.apiData}>
           <div style={{ 
             marginBottom: '2rem',
@@ -350,35 +372,30 @@ export default function Home() {
                     "Untitled Event"}
                 </h6>
 
-                {/* Description */}
                 {item.fieldData?.description && (
                   <p style={{ color: '#d1d5db', lineHeight: '1.6' }}>
                     <strong style={{ color: '#ffffff' }}>Description:</strong> {item.fieldData.description}
                   </p>
                 )}
 
-                {/* Club Name */}
                 {item.fieldData?.['club-name'] && (
                   <p style={{ color: '#d1d5db' }}>
                     <strong style={{ color: '#ffffff' }}>Club:</strong> {item.fieldData['club-name']}
                   </p>
                 )}
 
-                {/* Date and Time */}
                 {item.fieldData?.['date-and-time'] && (
                   <p style={{ color: '#d1d5db' }}>
                     <strong style={{ color: '#ffffff' }}>📅 Date:</strong> {new Date(item.fieldData['date-and-time']).toLocaleString()}
                   </p>
                 )}
 
-                {/* Address */}
                 {item.fieldData?.address && (
                   <p style={{ color: '#d1d5db' }}>
                     <strong style={{ color: '#ffffff' }}>📍 Address:</strong> {item.fieldData.address}
                   </p>
                 )}
 
-                {/* Badges */}
                 <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.5rem' }}>
                   {item.fieldData?.thumbnail && (
                     <span className={styles.statusBadge} style={{ background: 'rgba(110, 86, 207, 0.2)', color: '#b89eff', border: '1px solid rgba(110, 86, 207, 0.4)' }}>
@@ -387,12 +404,10 @@ export default function Home() {
                   )}
                 </div>
 
-                {/* Ticket Link */}
                 {item.fieldData?.['ticket-link'] && (
                   <p><strong>🎟️ Tickets:</strong> <a href={item.fieldData['ticket-link']} target="_blank" rel="noopener noreferrer" style={{ color: '#6E56CF', fontWeight: '600', textDecoration: 'underline' }}>Get Tickets</a></p>
                 )}
 
-           
                 {typeof item.isDraft !== 'undefined' && (
                   <p className={styles.readyStatus}>
                     <strong>Status:</strong>
@@ -409,10 +424,7 @@ export default function Home() {
                   </p>
                 )}
 
-
-
-                     {/* Archive Status */}
-                     {typeof item.isArchived !== 'undefined' && (
+                {typeof item.isArchived !== 'undefined' && (
                   <p className={styles.readyStatus}>
                     <strong>Visibility:</strong>
                     <span
@@ -428,8 +440,6 @@ export default function Home() {
                   </p>
                 )}
 
-
-                {/* Timestamps */}
                 <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
                   {item.lastPublished && (
                     <div className={styles.dateBadgeContainer}>
@@ -480,7 +490,6 @@ export default function Home() {
               maxWidth: '600px',
               textAlign: 'center'
             }}>
-             
               <h3 style={{ 
                 color: 'var(--text-primary)', 
                 fontSize: '1.5rem', 
