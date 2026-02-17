@@ -21,7 +21,7 @@ export default clerkMiddleware(async (auth, request) => {
     return NextResponse.redirect(signInUrl);
   }
 
-  const hasCompletedOnboarding = sessionClaims?.unsafeMetadata?.onboardingComplete;
+  const hasCompletedOnboarding = (sessionClaims as any)?.unsafeMetadata?.onboardingComplete;
 
   if (!hasCompletedOnboarding && !isOnboardingRoute(request)) {
     return NextResponse.redirect(new URL('/onboarding', request.url));
@@ -40,3 +40,4 @@ export const config = {
     '/(api|trpc)(.*)',
   ],
 };
+
