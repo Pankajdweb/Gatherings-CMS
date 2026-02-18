@@ -18,20 +18,21 @@ export default function EditItemModal({ item, isOpen, onClose, onSave, isAdmin =
   const formatDateForInput = (dateString: string) => {
     if (!dateString) return '';
     
-    // If it's already in YYYY-MM-DDTHH:mm format, return as is
+    // If it's already in YYYY-MM-DDTHH:mm format, return as is (no conversion!)
     if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(dateString)) {
-      return dateString.slice(0, 16); // Returns YYYY-MM-DDTHH:mm
+      return dateString.slice(0, 16);
     }
     
-    // Try to parse different date formats
-    const date = new Date(dateString);
-    if (!isNaN(date.getTime())) {
-      // Convert to local time and format for datetime-local input
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      const hours = String(date.getHours()).padStart(2, '0');
-      const minutes = String(date.getMinutes()).padStart(2, '0');
+    // If it's in ISO format, extract just the date/time part without timezone conversion
+    // Example: "2024-12-25T20:00:00.000Z" -> "2024-12-25T20:00"
+    if (dateString.includes('T') && dateString.includes('Z')) {
+      return dateString.slice(0, 16);
+    }
+    
+    // For any other format, try to preserve the original time
+    const match = dateString.match(/(\d{4})-(\d{2}-\d{2})[T\s](\d{2}):(\d{2})/);
+    if (match) {
+      const [, year, month, day, hours, minutes] = match;
       return `${year}-${month}-${day}T${hours}:${minutes}`;
     }
     
