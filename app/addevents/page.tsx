@@ -396,20 +396,31 @@ export default function AddItemPage() {
               </div>
 
               <div className={styles.dataField}>
-                <label>Date and Time: <span style={{color: 'red'}}>*</span></label>
-                <input
-                  type="datetime-local"
-                  value={formData.dateAndTime}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      dateAndTime: e.target.value,
-                    }))
-                  }
-                  className={styles.dataInput}
-                  required
-                />
-              </div>
+  <label>Date and Time: <span style={{color: 'red'}}>*</span></label>
+  <input
+    type="datetime-local"
+    value={formData.dateAndTime}
+    onChange={(e) => {
+      // Store the raw value without any timezone conversion
+      const rawValue = e.target.value; // Format: "2024-12-25T20:00"
+      setFormData((prev) => ({
+        ...prev,
+        dateAndTime: rawValue,
+      }))
+    }}
+    className={styles.dataInput}
+    required
+  />
+  <p style={{ 
+    fontSize: '0.875rem', 
+    color: '#9ca3af', 
+    marginTop: '0.5rem',
+    marginBottom: 0,
+    fontStyle: 'italic'
+  }}>
+    💡 Enter the event time in the timezone you selected below
+  </p>
+</div>
 
               <div className={styles.dataField}>
                 <label>Timezone: <span style={{color: 'red'}}>*</span></label>
