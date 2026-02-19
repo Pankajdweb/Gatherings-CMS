@@ -24,9 +24,8 @@ export default function MultiSelectBadge({
 
   const handleAdd = (id: string) => {
     if (!selectedIds.includes(id)) {
-      // Check if max selections limit is reached
       if (maxSelections && selectedIds.length >= maxSelections) {
-        return; // Don't add if limit reached
+        return;
       }
       onChange([...selectedIds, id]);
     }
@@ -45,8 +44,14 @@ export default function MultiSelectBadge({
   const isMaxReached = maxSelections ? selectedIds.length >= maxSelections : false;
 
   return (
-    <div style={{ marginBottom: '1rem' }}>
-      <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, color: '#ffffff' }}>
+    <div style={{ marginBottom: '1.5rem' }}>
+      <label style={{ 
+        display: 'block', 
+        marginBottom: '0.75rem', 
+        fontWeight: 600, 
+        color: '#ffffff',
+        fontSize: '0.95rem'
+      }}>
         {label}
         {maxSelections && (
           <span style={{ color: '#a0a3bd', fontSize: '0.85rem', fontWeight: 'normal', marginLeft: '0.5rem' }}>
@@ -55,98 +60,32 @@ export default function MultiSelectBadge({
         )}
       </label>
 
-      {/* Selected Items as Badges */}
-      <div style={{ 
-        display: 'flex', 
-        flexWrap: 'wrap', 
-        gap: '0.5rem', 
-        marginBottom: '0.5rem',
-        minHeight: '56px',
-        padding: '0.75rem',
-        border: '1px solid rgba(255, 255, 255, 0.1)',
-        borderRadius: '8px',
-        background: 'rgba(0, 0, 0, 0.2)'
-      }}>
-        {selectedOptions.length === 0 ? (
-          <span style={{ color: '#a0a3bd', fontSize: '0.875rem', alignSelf: 'center' }}>
-            No items selected
-          </span>
-        ) : (
-          selectedOptions.map(option => (
-            <span
-              key={option.id}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                padding: '0.375rem 0.875rem',
-                background: '#6E56CF',
-                color: 'white',
-                borderRadius: '20px',
-                fontSize: '0.875rem',
-                fontWeight: 600,
-                boxShadow: '0 2px 8px rgba(110, 86, 207, 0.3)'
-              }}
-            >
-              {option.name}
-              <button
-                type="button"
-                onClick={() => handleRemove(option.id)}
-                style={{
-                  background: 'transparent',
-                  border: 'none',
-                  color: 'white',
-                  cursor: 'pointer',
-                  padding: '0',
-                  display: 'flex',
-                  alignItems: 'center',
-                  fontSize: '1.25rem',
-                  lineHeight: '1',
-                  fontWeight: 'bold',
-                  opacity: 0.9,
-                  transition: 'opacity 0.2s'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.opacity = '1';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.opacity = '0.9';
-                }}
-                title="Remove"
-              >
-                ×
-              </button>
-            </span>
-          ))
-        )}
-      </div>
-
-      {/* Dropdown to Add Items */}
-      <div style={{ position: 'relative' }}>
+      {/* Dropdown FIRST - Primary action */}
+      <div style={{ position: 'relative', marginBottom: selectedOptions.length > 0 ? '0.75rem' : '0' }}>
         <button
-  type="button"
-  onClick={() => !isMaxReached && setIsOpen(!isOpen)}
-  className={styles.dataInput}
-  style={{
-    width: '100%',
-    textAlign: 'left',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    cursor: isMaxReached ? 'not-allowed' : 'pointer',
-    opacity: isMaxReached ? 0.6 : 1
-  }}
-  disabled={isMaxReached}
->
-  <span style={{ color: availableOptions.length > 0 && !isMaxReached ? '#a0a3bd' : '#6b7280' }}>
-    {isMaxReached 
-      ? `Maximum ${maxSelections} selections reached`
-      : placeholder}
-  </span>
-  <span style={{ fontSize: '0.75rem', color: '#a0a3bd' }}>
-    {!isMaxReached && (isOpen ? '▲' : '▼')}
-  </span>
-</button>
+          type="button"
+          onClick={() => !isMaxReached && setIsOpen(!isOpen)}
+          className={styles.dataInput}
+          style={{
+            width: '100%',
+            textAlign: 'left',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            cursor: isMaxReached ? 'not-allowed' : 'pointer',
+            opacity: isMaxReached ? 0.6 : 1
+          }}
+          disabled={isMaxReached}
+        >
+          <span style={{ color: availableOptions.length > 0 && !isMaxReached ? '#a0a3bd' : '#6b7280' }}>
+            {isMaxReached 
+              ? `Maximum ${maxSelections} selections reached`
+              : placeholder}
+          </span>
+          <span style={{ fontSize: '0.75rem', color: '#a0a3bd' }}>
+            {!isMaxReached && (isOpen ? '▲' : '▼')}
+          </span>
+        </button>
 
         {isOpen && availableOptions.length > 0 && !isMaxReached && (
           <div
@@ -195,8 +134,62 @@ export default function MultiSelectBadge({
           </div>
         )}
       </div>
+
+      {/* Selected Items as Badges BELOW - Visual feedback */}
+      {selectedOptions.length > 0 && (
+        <div style={{ 
+          display: 'flex', 
+          flexWrap: 'wrap', 
+          gap: '0.5rem'
+        }}>
+          {selectedOptions.map(option => (
+            <span
+              key={option.id}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                padding: '0.5rem 0.875rem',
+                background: '#6E56CF',
+                color: 'white',
+                borderRadius: '20px',
+                fontSize: '0.875rem',
+                fontWeight: 600,
+                boxShadow: '0 2px 8px rgba(110, 86, 207, 0.3)'
+              }}
+            >
+              {option.name}
+              <button
+                type="button"
+                onClick={() => handleRemove(option.id)}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: 'white',
+                  cursor: 'pointer',
+                  padding: '0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  fontSize: '1.25rem',
+                  lineHeight: '1',
+                  fontWeight: 'bold',
+                  opacity: 0.9,
+                  transition: 'opacity 0.2s'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.opacity = '1';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.opacity = '0.9';
+                }}
+                title="Remove"
+              >
+                ×
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
-
-
