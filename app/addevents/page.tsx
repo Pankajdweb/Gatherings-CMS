@@ -403,7 +403,8 @@ const fieldData: any = {
               <div className={styles.dataField}>
                 <label>Event Date: <span style={{color: 'red'}}>*</span></label>
                 <input
-                  type="date"
+                  type="text"
+                  placeholder="MM/DD/YYYY "
                   value={formData.eventDate}
                   onChange={(e) =>
                     setFormData((prev) => ({
@@ -414,12 +415,22 @@ const fieldData: any = {
                   className={styles.dataInput}
                   required
                 />
+                <p style={{ 
+                  fontSize: '0.85rem', 
+                  color: '#fbbf24', 
+                  marginTop: '0.5rem',
+                  marginBottom: 0,
+                  fontWeight: 500
+                }}>
+                  ⚠️ Use this exact format: MM/DD/YYYY (e.g., 11/15/2026)
+                </p>
               </div>
 
               <div className={styles.dataField}>
                 <label>Event Time: <span style={{color: 'red'}}>*</span></label>
                 <input
-                  type="time"
+                  type="text"
+                  placeholder="HH:MM AM/PM (e.g., 08:30 PM)"
                   value={formData.eventTime}
                   onChange={(e) =>
                     setFormData((prev) => ({
@@ -431,16 +442,16 @@ const fieldData: any = {
                   required
                 />
                 <p style={{ 
-                  fontSize: '0.875rem', 
-                  color: '#9ca3af', 
+                  fontSize: '0.85rem', 
+                  color: '#fbbf24', 
                   marginTop: '0.5rem',
                   marginBottom: 0,
-                  fontStyle: 'italic'
+                  fontWeight: 500
                 }}>
-                  💡 Enter the event time in the timezone you selected below
+                  ⚠️ Use this exact format: HH:MM AM/PM (e.g., 08:30 PM or 02:15 AM)
                 </p>
               </div>
-
+              
               <div className={styles.dataField}>
                 <label>Timezone: <span style={{color: 'red'}}>*</span></label>
                 <select
