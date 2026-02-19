@@ -6,9 +6,9 @@ import styles from './ImageUpload.module.css';
 interface ImageUploadProps {
   currentImageUrl?: string | { fileId?: string; url: string; alt?: string };
   onImageUploaded: (imageData: string | { fileId: string; url: string; alt?: string }) => void;
-  onFileSelected?: (file: File | null) => void; // New: for handling file selection without immediate upload
+  onFileSelected?: (file: File | null) => void;
   label?: string;
-  uploadOnSelect?: boolean; // New: whether to upload immediately or wait
+  uploadOnSelect?: boolean;
 }
 
 export default function ImageUpload({ 
@@ -16,7 +16,7 @@ export default function ImageUpload({
   onImageUploaded, 
   onFileSelected,
   label = "Thumbnail Image",
-  uploadOnSelect = false // Default to NOT uploading immediately
+  uploadOnSelect = false
 }: ImageUploadProps) {
   const [uploading, setUploading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -163,7 +163,9 @@ export default function ImageUpload({
 
   return (
     <div className={styles.uploadContainer}>
-      <label className={styles.label}>{label}:</label>
+      <label className={styles.label}>
+        {label.replace(' *', '')} <span style={{color: 'red'}}>*</span>
+      </label>
       
       {previewUrl ? (
         <div className={styles.previewContainer}>
@@ -226,4 +228,3 @@ export default function ImageUpload({
     </div>
   );
 }
-
