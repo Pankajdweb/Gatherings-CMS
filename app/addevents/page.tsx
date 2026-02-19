@@ -180,7 +180,7 @@ const fieldData: any = {
   name: formData.name,
   description: formData.description || "",
   "club-name": formData.clubName || "",
-  "date-and-time": (() => {
+  "event-date-time-text": (() => {
     if (!formData.eventDate || !formData.eventTime) return "";
     
     // Parse MM/DD/YYYY format
