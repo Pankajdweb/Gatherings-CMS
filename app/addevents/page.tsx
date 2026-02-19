@@ -181,7 +181,7 @@ const fieldData: any = {
   description: formData.description || "",
   "club-name": formData.clubName || "",
   "event-date-time-text": formData.eventDate && formData.eventTime && formData.timezone
-  ? `${formData.eventDate} ${formData.eventTime} ${formData.timezone}`
+  ? `${formData.eventDate} ${formData.eventTime}`
   : "",
   address: formData.address || "",
   thumbnail: thumbnailData || "",
