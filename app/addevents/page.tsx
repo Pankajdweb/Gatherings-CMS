@@ -14,19 +14,20 @@ export default function AddItemPage() {
   const [cmsMessage, setCmsMessage] = useState("");
   const [pendingImageFile, setPendingImageFile] = useState<File | null>(null);
   const [formData, setFormData] = useState<{
-    name: string;
-    description: string;
-    clubName: string;
-    dateAndTime: string;
-    address: string;
-    thumbnail: string | { fileId: string; url: string; alt?: string };
-    ticketLink: string;
-    timezone: string;
-    locationReference: string;
-    organiserNameReference: string;
-    eventCommunityReferences: string[];
-    categoryReferences: string[];
-  }>({
+  name: string;
+  description: string;
+  clubName: string;
+  eventDate: string;  // ✅ NEW
+  eventTime: string;  // ✅ NEW
+  address: string;
+  thumbnail: string | { fileId: string; url: string; alt?: string };
+  ticketLink: string;
+  timezone: string;
+  locationReference: string;
+  organiserNameReference: string;
+  eventCommunityReferences: string[];
+  categoryReferences: string[];
+}>({
     name: "",
     description: "",
     clubName: "",
