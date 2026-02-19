@@ -180,27 +180,9 @@ const fieldData: any = {
   name: formData.name,
   description: formData.description || "",
   "club-name": formData.clubName || "",
-  "event-date-time-text": (() => {
-    if (!formData.eventDate || !formData.eventTime) return "";
-    
-    // Parse MM/DD/YYYY format
-    const [month, day, year] = formData.eventDate.split('/');
-    
-    // Parse time (e.g., "08:30 PM")
-    const timeMatch = formData.eventTime.match(/(\d+):(\d+)\s*(AM|PM)/i);
-    if (!timeMatch) return "";
-    
-    let hours = parseInt(timeMatch[1]);
-    const minutes = timeMatch[2];
-    const period = timeMatch[3].toUpperCase();
-    
-    // Convert to 24-hour format
-    if (period === 'PM' && hours !== 12) hours += 12;
-    if (period === 'AM' && hours === 12) hours = 0;
-    
-    // Format as ISO: YYYY-MM-DDTHH:MM:SS
-    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}T${String(hours).padStart(2, '0')}:${minutes}:00`;
-  })(),
+  "event-date-time-text": formData.eventDate && formData.eventTime && formData.timezone
+  ? `${formData.eventDate} ${formData.eventTime} ${formData.timezone}`
+  : "",
   address: formData.address || "",
   thumbnail: thumbnailData || "",
   "ticket-link": formData.ticketLink || "",
