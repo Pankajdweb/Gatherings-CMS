@@ -180,7 +180,7 @@ const fieldData: any = {
   name: formData.name,
   description: formData.description || "",
   "club-name": formData.clubName || "",
-  "event-date-time-text": formData.eventDate && formData.eventTime && formData.timezone
+  "event-date-time-text": formData.eventDate && formData.eventTime
   ? `${formData.eventDate} ${formData.eventTime}`
   : "",
   address: formData.address || "",
