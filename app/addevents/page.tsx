@@ -173,17 +173,25 @@ export default function AddItemPage() {
         }
       }
       
-      // Prepare the payload
-      const fieldData: any = {
-        name: formData.name,
-        description: formData.description || "",
-        "club-name": formData.clubName || "",
-        "date-and-time": formData.dateAndTime || "",
-        address: formData.address || "",
-        thumbnail: thumbnailData || "",
-        "ticket-link": formData.ticketLink || "",
-        timezone: formData.timezone || "",
-      };
+     // Convert datetime-local format to ISO without timezone conversion
+// Input format: "2026-02-20T11:00" (from datetime-local)
+// Output format: "2026-02-20T11:00:00.000Z" (ISO string, but preserving the exact time)
+let isoDateTime = formData.dateAndTime;
+if (isoDateTime && !isoDateTime.includes('Z')) {
+  // Append seconds and Z to make it valid ISO, but keep the exact time
+  isoDateTime = isoDateTime + ':00.000Z';
+}
+
+const fieldData: any = {
+  name: formData.name,
+  description: formData.description || "",
+  "club-name": formData.clubName || "",
+  "date-and-time": isoDateTime || "",
+  address: formData.address || "",
+  thumbnail: thumbnailData || "",
+  "ticket-link": formData.ticketLink || "",
+  timezone: formData.timezone || "",
+};
 
       // Add references if provided
       if (formData.locationReference) {
