@@ -124,31 +124,29 @@ export default function MultiSelectBadge({
       {/* Dropdown to Add Items */}
       <div style={{ position: 'relative' }}>
         <button
-          type="button"
-          onClick={() => !isMaxReached && setIsOpen(!isOpen)}
-          className={styles.dataInput}
-          style={{
-            width: '100%',
-            textAlign: 'left',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            cursor: isMaxReached ? 'not-allowed' : 'pointer',
-            opacity: isMaxReached ? 0.6 : 1
-          }}
-          disabled={isMaxReached}
-        >
-          <span style={{ color: availableOptions.length > 0 && !isMaxReached ? '#a0a3bd' : '#6b7280' }}>
-            {isMaxReached 
-              ? `Maximum ${maxSelections} selections reached`
-              : availableOptions.length > 0 
-                ? placeholder 
-                : 'All items selected'}
-          </span>
-          <span style={{ fontSize: '0.75rem', color: '#a0a3bd' }}>
-            {!isMaxReached && (isOpen ? '▲' : '▼')}
-          </span>
-        </button>
+  type="button"
+  onClick={() => !isMaxReached && setIsOpen(!isOpen)}
+  className={styles.dataInput}
+  style={{
+    width: '100%',
+    textAlign: 'left',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    cursor: isMaxReached ? 'not-allowed' : 'pointer',
+    opacity: isMaxReached ? 0.6 : 1
+  }}
+  disabled={isMaxReached}
+>
+  <span style={{ color: availableOptions.length > 0 && !isMaxReached ? '#a0a3bd' : '#6b7280' }}>
+    {isMaxReached 
+      ? `Maximum ${maxSelections} selections reached`
+      : placeholder}
+  </span>
+  <span style={{ fontSize: '0.75rem', color: '#a0a3bd' }}>
+    {!isMaxReached && (isOpen ? '▲' : '▼')}
+  </span>
+</button>
 
         {isOpen && availableOptions.length > 0 && !isMaxReached && (
           <div
@@ -200,4 +198,5 @@ export default function MultiSelectBadge({
     </div>
   );
 }
+
 
