@@ -30,7 +30,8 @@ export default function AddItemPage() {
     name: "",
     description: "",
     clubName: "",
-    dateAndTime: "",
+    eventDate: "",
+    eventTime: "",
     address: "",
     thumbnail: "",
     ticketLink: "",
@@ -130,7 +131,8 @@ export default function AddItemPage() {
     if (!formData.name) requiredFields.push("Event Name");
     if (!formData.description) requiredFields.push("Description");
     if (!formData.clubName) requiredFields.push("Club Name");
-    if (!formData.dateAndTime) requiredFields.push("Date and Time");
+    if (!formData.eventDate) requiredFields.push("Event Date");
+    if (!formData.eventTime) requiredFields.push("Event Time");
     if (!formData.timezone) requiredFields.push("Timezone");
     if (!formData.address) requiredFields.push("Address");
     if (!formData.thumbnail && !pendingImageFile) requiredFields.push("Thumbnail Image");
@@ -172,21 +174,14 @@ export default function AddItemPage() {
           return; // Don't proceed with creation if image upload fails
         }
       }
-      
-     // Convert datetime-local format to ISO without timezone conversion
-// Input format: "2026-02-20T11:00" (from datetime-local)
-// Output format: "2026-02-20T11:00:00.000Z" (ISO string, but preserving the exact time)
-let isoDateTime = formData.dateAndTime;
-if (isoDateTime && !isoDateTime.includes('Z')) {
-  // Append seconds and Z to make it valid ISO, but keep the exact time
-  isoDateTime = isoDateTime + ':00.000Z';
-}
 
 const fieldData: any = {
   name: formData.name,
   description: formData.description || "",
   "club-name": formData.clubName || "",
-  "date-and-time": isoDateTime || "",
+  "date-and-time": formData.eventDate && formData.eventTime 
+  ? `${formData.eventDate}T${formData.eventTime}:00`
+  : "",
   address: formData.address || "",
   thumbnail: thumbnailData || "",
   "ticket-link": formData.ticketLink || "",
@@ -257,7 +252,8 @@ const fieldData: any = {
       name: "",
       description: "",
       clubName: "",
-      dateAndTime: "",
+      eventDate: "",
+      eventTime: "",
       address: "",
       thumbnail: "",
       ticketLink: "",
@@ -404,31 +400,45 @@ const fieldData: any = {
               </div>
 
               <div className={styles.dataField}>
-  <label>Date and Time: <span style={{color: 'red'}}>*</span></label>
-  <input
-    type="datetime-local"
-    value={formData.dateAndTime}
-    onChange={(e) => {
-      // Store the raw value without any timezone conversion
-      const rawValue = e.target.value; // Format: "2024-12-25T20:00"
-      setFormData((prev) => ({
-        ...prev,
-        dateAndTime: rawValue,
-      }))
-    }}
-    className={styles.dataInput}
-    required
-  />
-  <p style={{ 
-    fontSize: '0.875rem', 
-    color: '#9ca3af', 
-    marginTop: '0.5rem',
-    marginBottom: 0,
-    fontStyle: 'italic'
-  }}>
-    💡 Enter the event time in the timezone you selected below
-  </p>
-</div>
+                <label>Event Date: <span style={{color: 'red'}}>*</span></label>
+                <input
+                  type="date"
+                  value={formData.eventDate}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      eventDate: e.target.value,
+                    }))
+                  }
+                  className={styles.dataInput}
+                  required
+                />
+              </div>
+
+              <div className={styles.dataField}>
+                <label>Event Time: <span style={{color: 'red'}}>*</span></label>
+                <input
+                  type="time"
+                  value={formData.eventTime}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      eventTime: e.target.value,
+                    }))
+                  }
+                  className={styles.dataInput}
+                  required
+                />
+                <p style={{ 
+                  fontSize: '0.875rem', 
+                  color: '#9ca3af', 
+                  marginTop: '0.5rem',
+                  marginBottom: 0,
+                  fontStyle: 'italic'
+                }}>
+                  💡 Enter the event time in the timezone you selected below
+                </p>
+              </div>
 
               <div className={styles.dataField}>
                 <label>Timezone: <span style={{color: 'red'}}>*</span></label>
