@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import styles from '../page.module.css';
 
 interface MultiSelectBadgeProps {
@@ -21,6 +21,24 @@ export default function MultiSelectBadge({
   maxSelections
 }: MultiSelectBadgeProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen]);
 
   const handleAdd = (id: string) => {
     if (!selectedIds.includes(id)) {
@@ -52,7 +70,7 @@ export default function MultiSelectBadge({
         color: '#ffffff',
         fontSize: '0.95rem'
       }}>
-        {label}
+        {label.replace(' *', '')} <span style={{color: 'red'}}>*</span>
         {maxSelections && (
           <span style={{ color: '#a0a3bd', fontSize: '0.85rem', fontWeight: 'normal', marginLeft: '0.5rem' }}>
             ({selectedIds.length}/{maxSelections} selected)
@@ -61,7 +79,7 @@ export default function MultiSelectBadge({
       </label>
 
       {/* Dropdown FIRST - Primary action */}
-      <div style={{ position: 'relative', marginBottom: selectedOptions.length > 0 ? '0.75rem' : '0' }}>
+      <div ref={dropdownRef} style={{ position: 'relative', marginBottom: selectedOptions.length > 0 ? '0.75rem' : '0' }}>
         <button
           type="button"
           onClick={() => !isMaxReached && setIsOpen(!isOpen)}
